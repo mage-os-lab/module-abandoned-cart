@@ -12,7 +12,7 @@ Limitations: guest carts and customers not subscribed to the newsletter are not 
 
 ## Compatibility
 
-Mage-OS 4.x and Magento Open Source 2.4.9 (`magento/framework` ^103.0.9), PHP 8.3 to 8.5. CI runs the check-extension workflow on the currently supported Mage-OS versions; developed on Mage-OS 4.0.0 with PHP 8.5. No storefront templates, so the theme does not matter.
+Mage-OS 3.6 and 4.x, and Magento Open Source 2.4.9: all share the Magento 2.4.9 base (`magento/framework` ^103.0.9). PHP 8.3 to 8.5. CI runs the check-extension workflow on the currently supported Mage-OS versions (today Mage-OS 3.6.0 with PHP 8.4; Mage-OS 4.0 joins once the check-extension actions know it); developed on Mage-OS 4.0.0 with PHP 8.5. No storefront templates, so the theme does not matter.
 
 ## Installation
 
