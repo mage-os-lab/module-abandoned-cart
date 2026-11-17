@@ -1,0 +1,12 @@
+"You left something in your cart","Vous avez oublié quelque chose dans votre panier"
+"Hello %name,","Bonjour %name,"
+"You still have items waiting in your cart:","Des articles vous attendent toujours dans votre panier :"
+"Return to my cart","Retourner à mon panier"
+"You receive this reminder because you subscribed to our newsletter.","Vous recevez ce rappel car vous êtes inscrit à notre newsletter."
+Unsubscribe,"Se désinscrire"
+"Abandoned Cart","Panier abandonné"
+"Reminder E-mail","E-mail de relance"
+Enabled,Activé
+"Delay (hours)","Délai (heures)"
+"Send the reminder once the cart has not changed for this long. Only customers subscribed to the newsletter receive it.","Envoie la relance lorsque le panier n'a pas été modifié depuis ce délai. Seuls les clients inscrits à la newsletter la reçoivent."
+"E-mail Template","Modèle d'e-mail"
