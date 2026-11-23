@@ -2,6 +2,12 @@
 
 All notable changes to this module are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow [Semantic Versioning](https://semver.org/).
 
+## [1.2.1]
+
+### Fixed
+
+- PHPStan 2 error in the reminder query: the opt-out and newsletter subqueries are built as plain SQL strings.
+
 ## [1.2.0]
 
 ### Added
