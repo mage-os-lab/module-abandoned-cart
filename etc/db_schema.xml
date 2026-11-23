@@ -3,6 +3,42 @@
         xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
     <table name="quote" resource="checkout">
         <column xsi:type="timestamp" name="abandoned_reminder_sent_at" on_update="false" nullable="true"
-                comment="Abandoned cart reminder sent at"/>
+                comment="Last abandoned cart reminder sent at"/>
+        <column xsi:type="smallint" name="abandoned_reminder_count" unsigned="true" nullable="false" default="0"
+                comment="Abandoned cart reminders sent"/>
+        <column xsi:type="varchar" name="abandoned_reminder_token" length="64" nullable="true"
+                comment="Secret of the abandoned cart reminder links"/>
+    </table>
+    <table name="mageos_abandoned_cart_optout" resource="default" engine="innodb"
+           comment="E-mail addresses that stopped abandoned cart reminders">
+        <column xsi:type="varchar" name="email" length="255" nullable="false" comment="E-mail"/>
+        <column xsi:type="timestamp" name="created_at" on_update="false" nullable="false" default="CURRENT_TIMESTAMP"
+                comment="Opted out at"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="email"/>
+        </constraint>
+    </table>
+    <table name="mageos_abandoned_cart_reminder" resource="default" engine="innodb"
+           comment="Abandoned cart reminders sent, followed and turned into orders">
+        <column xsi:type="int" name="entity_id" unsigned="true" nullable="false" identity="true" comment="Id"/>
+        <column xsi:type="int" name="quote_id" unsigned="true" nullable="false" comment="Cart"/>
+        <column xsi:type="smallint" name="store_id" unsigned="true" nullable="false" comment="Store view"/>
+        <column xsi:type="smallint" name="step" unsigned="true" nullable="false" comment="Reminder 1, 2 or 3"/>
+        <column xsi:type="timestamp" name="sent_at" on_update="false" nullable="false" default="CURRENT_TIMESTAMP"
+                comment="Sent at"/>
+        <column xsi:type="timestamp" name="clicked_at" on_update="false" nullable="true"
+                comment="Cart link first followed at"/>
+        <column xsi:type="int" name="order_id" unsigned="true" nullable="true" comment="Order placed after it"/>
+        <column xsi:type="decimal" name="base_order_total" scale="4" precision="20" unsigned="false" nullable="true"
+                comment="Order grand total in base currency"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="entity_id"/>
+        </constraint>
+        <index referenceId="MAGEOS_ABANDONED_CART_REMINDER_QUOTE_ID" indexType="btree">
+            <column name="quote_id"/>
+        </index>
+        <index referenceId="MAGEOS_ABANDONED_CART_REMINDER_SENT_AT" indexType="btree">
+            <column name="sent_at"/>
+        </index>
     </table>
 </schema>

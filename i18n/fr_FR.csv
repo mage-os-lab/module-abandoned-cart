@@ -1,12 +1,42 @@
-"You left something in your cart","Vous avez oublié quelque chose dans votre panier"
+You left something in your cart,Vous avez oublié quelque chose dans votre panier
+Still thinking it over?,Vous hésitez encore ?
+Last reminder about your cart,Dernier rappel pour votre panier
 "Hello %name,","Bonjour %name,"
-"You still have items waiting in your cart:","Des articles vous attendent toujours dans votre panier :"
-"Return to my cart","Retourner à mon panier"
-"You receive this reminder because you subscribed to our newsletter.","Vous recevez ce rappel car vous êtes inscrit à notre newsletter."
-Unsubscribe,"Se désinscrire"
-"Abandoned Cart","Panier abandonné"
-"Reminder E-mail","E-mail de relance"
+You still have items waiting in your cart:,Des articles vous attendent toujours dans votre panier :
+Your cart is saved. Here is what you picked:,Votre panier est sauvegardé. Voici ce que vous aviez choisi :
+This is our last reminder. Your cart still holds:,Ceci est notre dernier rappel. Votre panier contient toujours :
+Return to my cart,Retourner à mon panier
+You receive this e-mail because you left items in your cart.,Vous recevez cet e-mail car vous avez laissé des articles dans votre panier.
+Stop cart reminders,Ne plus recevoir de rappels de panier
+Abandoned Cart,Panier abandonné
+General,Général
 Enabled,Activé
-"Delay (hours)","Délai (heures)"
-"Send the reminder once the cart has not changed for this long. Only customers subscribed to the newsletter receive it.","Envoie la relance lorsque le panier n'a pas été modifié depuis ce délai. Seuls les clients inscrits à la newsletter la reçoivent."
-"E-mail Template","Modèle d'e-mail"
+Recipients,Destinataires
+"Guests are reminded once they have entered their e-mail at checkout. Choose ""All customers and guests"" only if your privacy policy covers cart reminders. Every reminder has a link that stops them.",Les invités sont relancés une fois leur e-mail saisi au checkout. Ne choisissez « Tous les clients et invités » que si votre politique de confidentialité couvre les rappels de panier. Chaque rappel contient un lien pour ne plus en recevoir.
+Newsletter subscribers only,Abonnés à la newsletter uniquement
+All customers and guests,Tous les clients et invités
+Reminder 1,Rappel 1
+Reminder 2,Rappel 2
+Reminder 3,Rappel 3
+Delay (hours),Délai (heures)
+Hours without any change to the cart before this reminder. 0 turns it off.,Heures sans aucune modification du panier avant ce rappel. 0 le désactive.
+"Hours without any change to the cart before this reminder, counted like the first one: must be more than the previous reminder. 0 turns it off.","Heures sans aucune modification du panier avant ce rappel, comptées comme pour le premier : doit être supérieur au rappel précédent. 0 le désactive."
+E-mail Template,Modèle d'e-mail
+This cart is no longer available.,Ce panier n'est plus disponible.
+This link is not valid.,Ce lien n'est pas valide.
+You will no longer receive cart reminders.,Vous ne recevrez plus de rappels de panier.
+Minimum Cart Subtotal,Sous-total minimum du panier
+"In the base currency, before tax and discounts. Carts below it get no reminder. Empty or 0: no minimum.","Dans la devise de base, hors taxes et remises. Les paniers en dessous ne reçoivent aucun rappel. Vide ou 0 : pas de minimum."
+Subtotal,Sous-total
+Abandoned Cart Reminders,Rappels de paniers abandonnés
+Period:,Période :
+%1 days,%1 jours
+No reminder was sent in this period.,Aucun rappel n'a été envoyé sur cette période.
+Reminder,Rappel
+Sent,Envoyés
+Cart link followed,Lien du panier suivi
+Orders,Commandes
+Revenue,Chiffre d'affaires
+Total,Total
+Reminder %1,Rappel %1
+"An order is credited to the last reminder its cart received, whether or not the link was followed. Revenue is the grand total in base currency.","Une commande est attribuée au dernier rappel reçu par son panier, que le lien ait été suivi ou non. Le chiffre d'affaires est le total TTC dans la devise de base."

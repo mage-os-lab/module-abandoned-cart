@@ -1,0 +1,33 @@
+<!--@subject {{trans "Still thinking it over?"}} @-->
+<!--@vars {
+"var customer_name":"Customer name",
+"var items":"Cart items",
+"var item.name":"Cart item name (already HTML-escaped)",
+"var item.qty":"Cart item quantity",
+"var item.price":"Cart item row total, formatted (already HTML-escaped)",
+"var item.image_url":"Cart item image URL (already escaped)",
+"var subtotal":"Subtotal of the listed items, formatted",
+"var cart_url":"Cart URL (restores the cart of a guest)",
+"var unsubscribe_url":"URL that stops the cart reminders"
+} @-->
+{{template config_path="design/email/header_template"}}
+
+<p>{{trans "Hello %name," name=$customer_name}}</p>
+<p>{{trans "Your cart is saved. Here is what you picked:"}}</p>
+<table style="width: 100%; border-collapse: collapse">
+    {{for item in items}}
+    <tr style="border-bottom: 1px solid #e5e5e5">
+        <td style="width: 96px; padding: 8px 8px 8px 0"><img src="{{var item.image_url}}" alt="{{var item.name}}" width="96" height="96" style="display: block"></td>
+        <td style="padding: 8px">{{var item.name}} × {{var item.qty}}</td>
+        <td style="padding: 8px 0 8px 8px; text-align: right; white-space: nowrap">{{var item.price}}</td>
+    </tr>
+    {{/for}}
+    <tr>
+        <td colspan="2" style="padding: 8px 8px 8px 0; text-align: right"><strong>{{trans "Subtotal"}}</strong></td>
+        <td style="padding: 8px 0 8px 8px; text-align: right; white-space: nowrap"><strong>{{var subtotal}}</strong></td>
+    </tr>
+</table>
+<p><a href="{{var cart_url}}">{{trans "Return to my cart"}}</a></p>
+<p style="font-size: 12px">{{trans "You receive this e-mail because you left items in your cart."}} <a href="{{var unsubscribe_url}}">{{trans "Stop cart reminders"}}</a></p>
+
+{{template config_path="design/email/footer_template"}}

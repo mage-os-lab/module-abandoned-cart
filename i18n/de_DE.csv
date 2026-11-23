@@ -1,12 +1,42 @@
-"You left something in your cart","Sie haben etwas in Ihrem Warenkorb vergessen"
+You left something in your cart,Sie haben etwas in Ihrem Warenkorb vergessen
+Still thinking it over?,Noch unentschlossen?
+Last reminder about your cart,Letzte Erinnerung an Ihren Warenkorb
 "Hello %name,","Hallo %name,"
-"You still have items waiting in your cart:","In Ihrem Warenkorb warten noch Artikel auf Sie:"
-"Return to my cart","Zurück zum Warenkorb"
-"You receive this reminder because you subscribed to our newsletter.","Sie erhalten diese Erinnerung, weil Sie unseren Newsletter abonniert haben."
-Unsubscribe,Abmelden
-"Abandoned Cart","Verlassener Warenkorb"
-"Reminder E-mail","Erinnerungs-E-Mail"
+You still have items waiting in your cart:,In Ihrem Warenkorb warten noch Artikel auf Sie:
+Your cart is saved. Here is what you picked:,Ihr Warenkorb ist gespeichert. Das hatten Sie ausgewählt:
+This is our last reminder. Your cart still holds:,Dies ist unsere letzte Erinnerung. Ihr Warenkorb enthält noch:
+Return to my cart,Zurück zu meinem Warenkorb
+You receive this e-mail because you left items in your cart.,"Sie erhalten diese E-Mail, weil Sie Artikel in Ihrem Warenkorb gelassen haben."
+Stop cart reminders,Keine Warenkorb-Erinnerungen mehr
+Abandoned Cart,Verlassener Warenkorb
+General,Allgemein
 Enabled,Aktiviert
-"Delay (hours)","Verzögerung (Stunden)"
-"Send the reminder once the cart has not changed for this long. Only customers subscribed to the newsletter receive it.","Sendet die Erinnerung, wenn der Warenkorb so lange nicht geändert wurde. Nur Newsletter-Abonnenten erhalten sie."
-"E-mail Template","E-Mail-Vorlage"
+Recipients,Empfänger
+"Guests are reminded once they have entered their e-mail at checkout. Choose ""All customers and guests"" only if your privacy policy covers cart reminders. Every reminder has a link that stops them.","Gäste werden erinnert, sobald sie ihre E-Mail-Adresse im Checkout eingegeben haben. Wählen Sie „Alle Kunden und Gäste“ nur, wenn Ihre Datenschutzerklärung Warenkorb-Erinnerungen abdeckt. Jede Erinnerung enthält einen Link, um sie abzubestellen."
+Newsletter subscribers only,Nur Newsletter-Abonnenten
+All customers and guests,Alle Kunden und Gäste
+Reminder 1,Erinnerung 1
+Reminder 2,Erinnerung 2
+Reminder 3,Erinnerung 3
+Delay (hours),Verzögerung (Stunden)
+Hours without any change to the cart before this reminder. 0 turns it off.,Stunden ohne Änderung am Warenkorb vor dieser Erinnerung. 0 schaltet sie aus.
+"Hours without any change to the cart before this reminder, counted like the first one: must be more than the previous reminder. 0 turns it off.","Stunden ohne Änderung am Warenkorb vor dieser Erinnerung, gezählt wie bei der ersten: muss größer sein als bei der vorherigen Erinnerung. 0 schaltet sie aus."
+E-mail Template,E-Mail-Vorlage
+This cart is no longer available.,Dieser Warenkorb ist nicht mehr verfügbar.
+This link is not valid.,Dieser Link ist ungültig.
+You will no longer receive cart reminders.,Sie erhalten keine Warenkorb-Erinnerungen mehr.
+Minimum Cart Subtotal,Mindestzwischensumme des Warenkorbs
+"In the base currency, before tax and discounts. Carts below it get no reminder. Empty or 0: no minimum.","In der Basiswährung, vor Steuern und Rabatten. Warenkörbe darunter erhalten keine Erinnerung. Leer oder 0: kein Minimum."
+Subtotal,Zwischensumme
+Abandoned Cart Reminders,Erinnerungen an verlassene Warenkörbe
+Period:,Zeitraum:
+%1 days,%1 Tage
+No reminder was sent in this period.,In diesem Zeitraum wurde keine Erinnerung gesendet.
+Reminder,Erinnerung
+Sent,Gesendet
+Cart link followed,Warenkorb-Link geöffnet
+Orders,Bestellungen
+Revenue,Umsatz
+Total,Gesamt
+Reminder %1,Erinnerung %1
+"An order is credited to the last reminder its cart received, whether or not the link was followed. Revenue is the grand total in base currency.","Eine Bestellung wird der letzten Erinnerung ihres Warenkorbs zugerechnet, ob der Link geöffnet wurde oder nicht. Der Umsatz ist die Gesamtsumme in der Basiswährung."

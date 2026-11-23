@@ -1,12 +1,42 @@
-"You left something in your cart","Has olvidado algo en tu carrito"
-"Hello %name,","Hola %name,"
-"You still have items waiting in your cart:","Todavía tienes artículos esperándote en tu carrito:"
-"Return to my cart","Volver a mi carrito"
-"You receive this reminder because you subscribed to our newsletter.","Recibes este recordatorio porque estás suscrito a nuestro boletín."
-Unsubscribe,"Darse de baja"
-"Abandoned Cart","Carrito abandonado"
-"Reminder E-mail","Correo de recordatorio"
+You left something in your cart,Has olvidado algo en tu carrito
+Still thinking it over?,¿Todavía lo estás pensando?
+Last reminder about your cart,Último recordatorio de tu carrito
+"Hello %name,",Hola %name:
+You still have items waiting in your cart:,Todavía tienes artículos esperando en tu carrito:
+Your cart is saved. Here is what you picked:,Tu carrito está guardado. Esto es lo que elegiste:
+This is our last reminder. Your cart still holds:,Este es nuestro último recordatorio. Tu carrito todavía contiene:
+Return to my cart,Volver a mi carrito
+You receive this e-mail because you left items in your cart.,Recibes este correo porque dejaste artículos en tu carrito.
+Stop cart reminders,No recibir más recordatorios del carrito
+Abandoned Cart,Carrito abandonado
+General,General
 Enabled,Activado
-"Delay (hours)","Retraso (horas)"
-"Send the reminder once the cart has not changed for this long. Only customers subscribed to the newsletter receive it.","Envía el recordatorio cuando el carrito no ha cambiado durante este tiempo. Solo lo reciben los clientes suscritos al boletín."
-"E-mail Template","Plantilla de correo"
+Recipients,Destinatarios
+"Guests are reminded once they have entered their e-mail at checkout. Choose ""All customers and guests"" only if your privacy policy covers cart reminders. Every reminder has a link that stops them.",Los invitados reciben recordatorios cuando han introducido su correo en el checkout. Elige «Todos los clientes e invitados» solo si tu política de privacidad cubre los recordatorios de carrito. Cada recordatorio incluye un enlace para dejar de recibirlos.
+Newsletter subscribers only,Solo suscriptores del boletín
+All customers and guests,Todos los clientes e invitados
+Reminder 1,Recordatorio 1
+Reminder 2,Recordatorio 2
+Reminder 3,Recordatorio 3
+Delay (hours),Retraso (horas)
+Hours without any change to the cart before this reminder. 0 turns it off.,Horas sin ningún cambio en el carrito antes de este recordatorio. 0 lo desactiva.
+"Hours without any change to the cart before this reminder, counted like the first one: must be more than the previous reminder. 0 turns it off.","Horas sin ningún cambio en el carrito antes de este recordatorio, contadas como en el primero: debe ser mayor que el recordatorio anterior. 0 lo desactiva."
+E-mail Template,Plantilla de correo
+This cart is no longer available.,Este carrito ya no está disponible.
+This link is not valid.,Este enlace no es válido.
+You will no longer receive cart reminders.,Ya no recibirás recordatorios del carrito.
+Minimum Cart Subtotal,Subtotal mínimo del carrito
+"In the base currency, before tax and discounts. Carts below it get no reminder. Empty or 0: no minimum.","En la moneda base, antes de impuestos y descuentos. Los carritos por debajo no reciben recordatorios. Vacío o 0: sin mínimo."
+Subtotal,Subtotal
+Abandoned Cart Reminders,Recordatorios de carritos abandonados
+Period:,Período:
+%1 days,%1 días
+No reminder was sent in this period.,No se envió ningún recordatorio en este período.
+Reminder,Recordatorio
+Sent,Enviados
+Cart link followed,Enlace del carrito seguido
+Orders,Pedidos
+Revenue,Ingresos
+Total,Total
+Reminder %1,Recordatorio %1
+"An order is credited to the last reminder its cart received, whether or not the link was followed. Revenue is the grand total in base currency.","Un pedido se atribuye al último recordatorio que recibió su carrito, se haya seguido o no el enlace. Los ingresos son el total general en la moneda base."

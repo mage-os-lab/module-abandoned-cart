@@ -1,0 +1,64 @@
+<?php
+/**
+ * Report of the reminders sent, followed and turned into orders.
+ *
+ * @var \Magento\Framework\View\Element\Template $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+
+/** @var \MageOS\AbandonedCart\ViewModel\Report $report */
+$report = $block->getData('view_model');
+$rows = $report->getRows();
+?>
+<p>
+    <?= $escaper->escapeHtml(__('Period:')) ?>
+    <?php foreach (\MageOS\AbandonedCart\ViewModel\Report::PERIODS as $days): ?>
+        <?php if ($days === $report->getDays()): ?>
+            <strong><?= $escaper->escapeHtml(__('%1 days', $days)) ?></strong>
+        <?php else: ?>
+            <a href="<?= $escaper->escapeUrl($block->getUrl('*/*/*', ['days' => $days])) ?>">
+                <?= $escaper->escapeHtml(__('%1 days', $days)) ?>
+            </a>
+        <?php endif; ?>
+    <?php endforeach; ?>
+</p>
+<?php if (!$rows): ?>
+    <p><?= $escaper->escapeHtml(__('No reminder was sent in this period.')) ?></p>
+<?php else: ?>
+    <table class="data-grid">
+        <thead>
+        <tr>
+            <th class="data-grid-th"><?= $escaper->escapeHtml(__('Reminder')) ?></th>
+            <th class="data-grid-th"><?= $escaper->escapeHtml(__('Sent')) ?></th>
+            <th class="data-grid-th"><?= $escaper->escapeHtml(__('Cart link followed')) ?></th>
+            <th class="data-grid-th"><?= $escaper->escapeHtml(__('Orders')) ?></th>
+            <th class="data-grid-th"><?= $escaper->escapeHtml(__('Revenue')) ?></th>
+        </tr>
+        </thead>
+        <tbody>
+        <?php foreach ($rows as $step => $row): ?>
+            <tr>
+                <td>
+                    <?= $escaper->escapeHtml($step === 'total' ? __('Total') : __('Reminder %1', $step)) ?>
+                </td>
+                <td><?= (int) $row['sent'] ?></td>
+                <td>
+                    <?= (int) $row['clicked'] ?>
+                    (<?= $escaper->escapeHtml($report->rate($row['clicked'], $row['sent'])) ?>)
+                </td>
+                <td>
+                    <?= (int) $row['orders'] ?>
+                    (<?= $escaper->escapeHtml($report->rate($row['orders'], $row['sent'])) ?>)
+                </td>
+                <td><?= $escaper->escapeHtml($report->price($row['revenue'])) ?></td>
+            </tr>
+        <?php endforeach; ?>
+        </tbody>
+    </table>
+    <p>
+        <?= $escaper->escapeHtml(__(
+            'An order is credited to the last reminder its cart received, whether or not the link was followed.'
+            . ' Revenue is the grand total in base currency.'
+        )) ?>
+    </p>
+<?php endif; ?>

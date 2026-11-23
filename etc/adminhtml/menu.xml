@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
+    <menu>
+        <add id="MageOS_AbandonedCart::report" title="Abandoned Cart Reminders" translate="title"
+             module="MageOS_AbandonedCart" sortOrder="25" parent="Magento_Reports::report_marketing"
+             action="mageos_abandonedcart/report" resource="MageOS_AbandonedCart::report"/>
+    </menu>
+</config>

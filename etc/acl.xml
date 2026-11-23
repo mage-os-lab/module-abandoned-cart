@@ -4,6 +4,12 @@
     <acl>
         <resources>
             <resource id="Magento_Backend::admin">
+                <resource id="Magento_Reports::report">
+                    <resource id="Magento_Reports::report_marketing">
+                        <resource id="MageOS_AbandonedCart::report" title="Abandoned Cart Reminders"
+                                  translate="title"/>
+                    </resource>
+                </resource>
                 <resource id="Magento_Backend::stores">
                     <resource id="Magento_Backend::stores_settings">
                         <resource id="Magento_Config::config">

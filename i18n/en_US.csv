@@ -1,12 +1,42 @@
-"You left something in your cart","You left something in your cart"
+You left something in your cart,You left something in your cart
+Still thinking it over?,Still thinking it over?
+Last reminder about your cart,Last reminder about your cart
 "Hello %name,","Hello %name,"
-"You still have items waiting in your cart:","You still have items waiting in your cart:"
-"Return to my cart","Return to my cart"
-"You receive this reminder because you subscribed to our newsletter.","You receive this reminder because you subscribed to our newsletter."
-Unsubscribe,Unsubscribe
-"Abandoned Cart","Abandoned Cart"
-"Reminder E-mail","Reminder E-mail"
+You still have items waiting in your cart:,You still have items waiting in your cart:
+Your cart is saved. Here is what you picked:,Your cart is saved. Here is what you picked:
+This is our last reminder. Your cart still holds:,This is our last reminder. Your cart still holds:
+Return to my cart,Return to my cart
+You receive this e-mail because you left items in your cart.,You receive this e-mail because you left items in your cart.
+Stop cart reminders,Stop cart reminders
+Abandoned Cart,Abandoned Cart
+General,General
 Enabled,Enabled
-"Delay (hours)","Delay (hours)"
-"Send the reminder once the cart has not changed for this long. Only customers subscribed to the newsletter receive it.","Send the reminder once the cart has not changed for this long. Only customers subscribed to the newsletter receive it."
-"E-mail Template","E-mail Template"
+Recipients,Recipients
+"Guests are reminded once they have entered their e-mail at checkout. Choose ""All customers and guests"" only if your privacy policy covers cart reminders. Every reminder has a link that stops them.","Guests are reminded once they have entered their e-mail at checkout. Choose ""All customers and guests"" only if your privacy policy covers cart reminders. Every reminder has a link that stops them."
+Newsletter subscribers only,Newsletter subscribers only
+All customers and guests,All customers and guests
+Reminder 1,Reminder 1
+Reminder 2,Reminder 2
+Reminder 3,Reminder 3
+Delay (hours),Delay (hours)
+Hours without any change to the cart before this reminder. 0 turns it off.,Hours without any change to the cart before this reminder. 0 turns it off.
+"Hours without any change to the cart before this reminder, counted like the first one: must be more than the previous reminder. 0 turns it off.","Hours without any change to the cart before this reminder, counted like the first one: must be more than the previous reminder. 0 turns it off."
+E-mail Template,E-mail Template
+This cart is no longer available.,This cart is no longer available.
+This link is not valid.,This link is not valid.
+You will no longer receive cart reminders.,You will no longer receive cart reminders.
+Minimum Cart Subtotal,Minimum Cart Subtotal
+"In the base currency, before tax and discounts. Carts below it get no reminder. Empty or 0: no minimum.","In the base currency, before tax and discounts. Carts below it get no reminder. Empty or 0: no minimum."
+Subtotal,Subtotal
+Abandoned Cart Reminders,Abandoned Cart Reminders
+Period:,Period:
+%1 days,%1 days
+No reminder was sent in this period.,No reminder was sent in this period.
+Reminder,Reminder
+Sent,Sent
+Cart link followed,Cart link followed
+Orders,Orders
+Revenue,Revenue
+Total,Total
+Reminder %1,Reminder %1
+"An order is credited to the last reminder its cart received, whether or not the link was followed. Revenue is the grand total in base currency.","An order is credited to the last reminder its cart received, whether or not the link was followed. Revenue is the grand total in base currency."

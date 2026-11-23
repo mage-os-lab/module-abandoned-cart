@@ -2,26 +2,72 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
     <system>
-        <section id="mageos_abandoned_cart" translate="label" sortOrder="900" showInDefault="1" showInWebsite="0"
+        <section id="mageos_abandoned_cart" translate="label" sortOrder="900" showInDefault="1" showInWebsite="1"
                  showInStore="1">
             <label>Abandoned Cart</label>
             <tab>sales</tab>
             <resource>MageOS_AbandonedCart::config</resource>
-            <group id="general" translate="label" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="1">
-                <label>Reminder E-mail</label>
-                <field id="enabled" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="0"
+            <group id="general" translate="label" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+                <label>General</label>
+                <field id="enabled" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1"
                        showInStore="0">
                     <label>Enabled</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
-                <field id="delay_hours" translate="label comment" type="text" sortOrder="20" showInDefault="1"
-                       showInWebsite="0" showInStore="0">
-                    <label>Delay (hours)</label>
-                    <comment>Send the reminder once the cart has not changed for this long. Only customers subscribed to the newsletter receive it.</comment>
-                    <validate>required-entry validate-digits validate-greater-than-zero</validate>
+                <field id="recipients" translate="label comment" type="select" sortOrder="20" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>Recipients</label>
+                    <source_model>MageOS\AbandonedCart\Model\Source\Recipients</source_model>
+                    <comment>Guests are reminded once they have entered their e-mail at checkout. Choose "All customers and guests" only if your privacy policy covers cart reminders. Every reminder has a link that stops them.</comment>
                 </field>
-                <field id="template" translate="label" type="select" sortOrder="30" showInDefault="1"
-                       showInWebsite="0" showInStore="1">
+                <field id="min_subtotal" translate="label comment" type="text" sortOrder="30" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>Minimum Cart Subtotal</label>
+                    <comment>In the base currency, before tax and discounts. Carts below it get no reminder. Empty or 0: no minimum.</comment>
+                    <validate>validate-zero-or-greater</validate>
+                </field>
+            </group>
+            <group id="reminder1" translate="label" sortOrder="20" showInDefault="1" showInWebsite="1"
+                   showInStore="1">
+                <label>Reminder 1</label>
+                <field id="delay_hours" translate="label comment" type="text" sortOrder="10" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>Delay (hours)</label>
+                    <comment>Hours without any change to the cart before this reminder. 0 turns it off.</comment>
+                    <validate>required-entry validate-digits</validate>
+                </field>
+                <field id="template" translate="label" type="select" sortOrder="20" showInDefault="1"
+                       showInWebsite="1" showInStore="1">
+                    <label>E-mail Template</label>
+                    <source_model>Magento\Config\Model\Config\Source\Email\Template</source_model>
+                </field>
+            </group>
+            <group id="reminder2" translate="label" sortOrder="30" showInDefault="1" showInWebsite="1"
+                   showInStore="1">
+                <label>Reminder 2</label>
+                <field id="delay_hours" translate="label comment" type="text" sortOrder="10" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>Delay (hours)</label>
+                    <comment>Hours without any change to the cart before this reminder, counted like the first one: must be more than the previous reminder. 0 turns it off.</comment>
+                    <validate>required-entry validate-digits</validate>
+                </field>
+                <field id="template" translate="label" type="select" sortOrder="20" showInDefault="1"
+                       showInWebsite="1" showInStore="1">
+                    <label>E-mail Template</label>
+                    <source_model>Magento\Config\Model\Config\Source\Email\Template</source_model>
+                </field>
+            </group>
+            <group id="reminder3" translate="label" sortOrder="40" showInDefault="1" showInWebsite="1"
+                   showInStore="1">
+                <label>Reminder 3</label>
+                <field id="delay_hours" translate="label comment" type="text" sortOrder="10" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>Delay (hours)</label>
+                    <comment>Hours without any change to the cart before this reminder, counted like the first one: must be more than the previous reminder. 0 turns it off.</comment>
+                    <validate>required-entry validate-digits</validate>
+                </field>
+                <field id="template" translate="label" type="select" sortOrder="20" showInDefault="1"
+                       showInWebsite="1" showInStore="1">
                     <label>E-mail Template</label>
                     <source_model>Magento\Config\Model\Config\Source\Email\Template</source_model>
                 </field>

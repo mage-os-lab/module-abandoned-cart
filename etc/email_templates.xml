@@ -1,6 +1,10 @@
 <?xml version="1.0"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Email:etc/email_templates.xsd">
-    <template id="mageos_abandoned_cart_general_template" label="Abandoned Cart Reminder" file="reminder.html"
+    <template id="mageos_abandoned_cart_reminder1_template" label="Abandoned Cart Reminder 1" file="reminder1.html"
+              type="html" module="MageOS_AbandonedCart" area="frontend"/>
+    <template id="mageos_abandoned_cart_reminder2_template" label="Abandoned Cart Reminder 2" file="reminder2.html"
+              type="html" module="MageOS_AbandonedCart" area="frontend"/>
+    <template id="mageos_abandoned_cart_reminder3_template" label="Abandoned Cart Reminder 3" file="reminder3.html"
               type="html" module="MageOS_AbandonedCart" area="frontend"/>
 </config>

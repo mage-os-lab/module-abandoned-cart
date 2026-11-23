@@ -1,7 +1,37 @@
 {
     "quote": {
         "column": {
-            "abandoned_reminder_sent_at": true
+            "abandoned_reminder_sent_at": true,
+            "abandoned_reminder_count": true,
+            "abandoned_reminder_token": true
+        }
+    },
+    "mageos_abandoned_cart_optout": {
+        "column": {
+            "email": true,
+            "created_at": true
+        },
+        "constraint": {
+            "PRIMARY": true
+        }
+    },
+    "mageos_abandoned_cart_reminder": {
+        "column": {
+            "entity_id": true,
+            "quote_id": true,
+            "store_id": true,
+            "step": true,
+            "sent_at": true,
+            "clicked_at": true,
+            "order_id": true,
+            "base_order_total": true
+        },
+        "index": {
+            "MAGEOS_ABANDONED_CART_REMINDER_QUOTE_ID": true,
+            "MAGEOS_ABANDONED_CART_REMINDER_SENT_AT": true
+        },
+        "constraint": {
+            "PRIMARY": true
         }
     }
 }

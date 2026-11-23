@@ -5,9 +5,21 @@
         <mageos_abandoned_cart>
             <general>
                 <enabled>0</enabled>
-                <delay_hours>24</delay_hours>
-                <template>mageos_abandoned_cart_general_template</template>
+                <recipients>subscribers</recipients>
+                <min_subtotal>0</min_subtotal>
             </general>
+            <reminder1>
+                <delay_hours>24</delay_hours>
+                <template>mageos_abandoned_cart_reminder1_template</template>
+            </reminder1>
+            <reminder2>
+                <delay_hours>0</delay_hours>
+                <template>mageos_abandoned_cart_reminder2_template</template>
+            </reminder2>
+            <reminder3>
+                <delay_hours>0</delay_hours>
+                <template>mageos_abandoned_cart_reminder3_template</template>
+            </reminder3>
         </mageos_abandoned_cart>
     </default>
 </config>

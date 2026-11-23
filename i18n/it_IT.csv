@@ -1,12 +1,42 @@
-"You left something in your cart","Hai dimenticato qualcosa nel carrello"
+You left something in your cart,Hai dimenticato qualcosa nel carrello
+Still thinking it over?,Ci stai ancora pensando?
+Last reminder about your cart,Ultimo promemoria per il tuo carrello
 "Hello %name,","Ciao %name,"
-"You still have items waiting in your cart:","Alcuni articoli ti aspettano ancora nel carrello:"
-"Return to my cart","Torna al mio carrello"
-"You receive this reminder because you subscribed to our newsletter.","Ricevi questo promemoria perché sei iscritto alla nostra newsletter."
-Unsubscribe,"Annulla iscrizione"
-"Abandoned Cart","Carrello abbandonato"
-"Reminder E-mail","E-mail di promemoria"
+You still have items waiting in your cart:,Nel tuo carrello ci sono ancora degli articoli:
+Your cart is saved. Here is what you picked:,Il tuo carrello è salvato. Ecco cosa avevi scelto:
+This is our last reminder. Your cart still holds:,Questo è il nostro ultimo promemoria. Il tuo carrello contiene ancora:
+Return to my cart,Torna al mio carrello
+You receive this e-mail because you left items in your cart.,Ricevi questa e-mail perché hai lasciato degli articoli nel carrello.
+Stop cart reminders,Non ricevere più promemoria del carrello
+Abandoned Cart,Carrello abbandonato
+General,Generale
 Enabled,Abilitato
-"Delay (hours)","Ritardo (ore)"
-"Send the reminder once the cart has not changed for this long. Only customers subscribed to the newsletter receive it.","Invia il promemoria quando il carrello non è stato modificato per questo periodo. Lo ricevono solo i clienti iscritti alla newsletter."
-"E-mail Template","Modello e-mail"
+Recipients,Destinatari
+"Guests are reminded once they have entered their e-mail at checkout. Choose ""All customers and guests"" only if your privacy policy covers cart reminders. Every reminder has a link that stops them.",Gli ospiti ricevono i promemoria dopo aver inserito la loro e-mail al checkout. Scegli «Tutti i clienti e gli ospiti» solo se la tua informativa sulla privacy copre i promemoria del carrello. Ogni promemoria contiene un link per non riceverne più.
+Newsletter subscribers only,Solo iscritti alla newsletter
+All customers and guests,Tutti i clienti e gli ospiti
+Reminder 1,Promemoria 1
+Reminder 2,Promemoria 2
+Reminder 3,Promemoria 3
+Delay (hours),Ritardo (ore)
+Hours without any change to the cart before this reminder. 0 turns it off.,Ore senza alcuna modifica al carrello prima di questo promemoria. 0 lo disattiva.
+"Hours without any change to the cart before this reminder, counted like the first one: must be more than the previous reminder. 0 turns it off.","Ore senza alcuna modifica al carrello prima di questo promemoria, contate come per il primo: deve essere maggiore del promemoria precedente. 0 lo disattiva."
+E-mail Template,Modello e-mail
+This cart is no longer available.,Questo carrello non è più disponibile.
+This link is not valid.,Questo link non è valido.
+You will no longer receive cart reminders.,Non riceverai più promemoria del carrello.
+Minimum Cart Subtotal,Subtotale minimo del carrello
+"In the base currency, before tax and discounts. Carts below it get no reminder. Empty or 0: no minimum.","Nella valuta di base, al netto di tasse e sconti. I carrelli al di sotto non ricevono promemoria. Vuoto o 0: nessun minimo."
+Subtotal,Subtotale
+Abandoned Cart Reminders,Promemoria dei carrelli abbandonati
+Period:,Periodo:
+%1 days,%1 giorni
+No reminder was sent in this period.,Nessun promemoria è stato inviato in questo periodo.
+Reminder,Promemoria
+Sent,Inviati
+Cart link followed,Link del carrello seguito
+Orders,Ordini
+Revenue,Fatturato
+Total,Totale
+Reminder %1,Promemoria %1
+"An order is credited to the last reminder its cart received, whether or not the link was followed. Revenue is the grand total in base currency.","Un ordine viene attribuito all'ultimo promemoria ricevuto dal suo carrello, che il link sia stato seguito o no. Il fatturato è il totale complessivo nella valuta di base."
