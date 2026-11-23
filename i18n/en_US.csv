@@ -40,3 +40,5 @@ Revenue,Revenue
 Total,Total
 Reminder %1,Reminder %1
 "An order is credited to the last reminder its cart received, whether or not the link was followed. Revenue is the grand total in base currency.","An order is credited to the last reminder its cart received, whether or not the link was followed. Revenue is the grand total in base currency."
+"Hello,","Hello,"
+"Do you want to stop the cart reminders sent to your e-mail address?","Do you want to stop the cart reminders sent to your e-mail address?"

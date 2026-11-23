@@ -40,3 +40,5 @@ Revenue,Ingresos
 Total,Total
 Reminder %1,Recordatorio %1
 "An order is credited to the last reminder its cart received, whether or not the link was followed. Revenue is the grand total in base currency.","Un pedido se atribuye al último recordatorio que recibió su carrito, se haya seguido o no el enlace. Los ingresos son el total general en la moneda base."
+"Hello,","Hola:"
+"Do you want to stop the cart reminders sent to your e-mail address?","¿Quiere dejar de recibir recordatorios del carrito en su dirección de correo electrónico?"

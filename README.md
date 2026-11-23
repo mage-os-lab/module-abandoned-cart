@@ -16,7 +16,7 @@ Limitations: three reminders at most; a reminder due while nothing in the cart i
 
 ## Compatibility
 
-Mage-OS 3.6 and 4.x, and Magento Open Source 2.4.9: all share the Magento 2.4.9 base (`magento/framework` ^103.0.9). PHP 8.3 to 8.5. CI runs the check-extension workflow on the currently supported Mage-OS versions (today Mage-OS 3.6.0 with PHP 8.4; Mage-OS 4.0 joins once the check-extension actions know it); developed on Mage-OS 4.0.0 with PHP 8.5. No storefront templates: the restore and stop links redirect with a message, so they work on Hyvä and Luma alike.
+Mage-OS 3.6 and 4.x, and Magento Open Source 2.4.9: all share the Magento 2.4.9 base (`magento/framework` ^103.0.9). PHP 8.3 to 8.5. CI runs the check-extension workflow on the currently supported Mage-OS versions (today Mage-OS 3.6.0 with PHP 8.4; Mage-OS 4.0 joins once the check-extension actions know it); developed on Mage-OS 4.0.0 with PHP 8.5. The only storefront page, the confirmation of the stop link, is a plain form styled for both Hyvä and Luma; the module registers itself for Hyvä's Tailwind build.
 
 ## Installation
 
@@ -34,7 +34,7 @@ bin/magento setup:upgrade
 | Setting | Default | Scope | What it does |
 |---------|---------|-------|--------------|
 | Enabled | No | Website | Turns the reminders on for the website. |
-| Recipients | Newsletter subscribers only | Website | *Newsletter subscribers only*: an address subscribed to the newsletter in the cart's website, the subscription being the consent for this marketing e-mail. *All customers and guests*: every cart with an e-mail; choose it only if your privacy policy covers cart reminders. |
+| Recipients | Newsletter subscribers only | Website | *Newsletter subscribers only*: an address subscribed to the newsletter in the cart's website, the subscription being the consent for this marketing e-mail. *All customers and guests*: every cart with an e-mail; choose it only if your privacy policy covers cart reminders. With *Newsletter subscribers only*, set *Customers > Newsletter > Subscription Options > Need to Confirm* to Yes, so nobody can subscribe someone else's address to get it reminders. |
 | Minimum Cart Subtotal | 0 | Website | Carts whose subtotal, in base currency before tax and discounts, is below it get no reminder. 0: no minimum. |
 
 ### Reminder 1, Reminder 2, Reminder 3
@@ -44,7 +44,7 @@ bin/magento setup:upgrade
 | Delay (hours) | 24, 0, 0 | Website | Hours without any change to the cart before this reminder. 0 turns the reminder off. Each delay counts from the last change to the cart and must be more than the previous reminder's, otherwise the reminder is skipped. |
 | E-mail Template | Abandoned Cart Reminder 1, 2, 3 | Store view | Template of the reminder; copy it under *Marketing > Email Templates* to change the text. |
 
-Reminder n+1 is also never sent sooner than the gap between both delays after reminder n: with 1, 24 and 72 hours, a cart found 3 days old still gets its reminders 23 and 48 hours apart. A change to the cart pushes the next reminder back by its full delay; placing the order stops the reminders.
+Reminder n+1 is also never sent sooner than the gap between both delays after reminder n: with 1, 24 and 72 hours, a cart found 3 days old still gets its reminders 23 and 48 hours apart. A change to the cart pushes the next reminder back by its full delay; placing the order stops the reminders. An e-mail address gets at most 3 reminders a week, all carts together, so carts filled in with someone else's address cannot flood it; a reminder over that limit, or whose sending fails (see the log), is skipped and the next one follows as usual.
 
 Access to this section needs the *Abandoned Cart* ACL resource (*System > Permissions > User Roles > Stores > Settings > Configuration*).
 
@@ -61,7 +61,11 @@ One row per reminder, over the last 7, 30, 90 or 365 days: reminders sent, cart 
 3. Once the cart is older than the first delay, the next cron run (every 15 minutes) sends reminder 1, listing the items with their image and price, with a link back to the cart and a *Stop cart reminders* link.
 4. Follow the link, then open *Reports > Marketing > Abandoned Cart Reminders*: the reminder is counted as sent and followed.
 
-The links in the e-mail carry a secret token per cart. The guest's link restores the cart in the browser that opens it, unless a customer is signed in there. Customers' links open the cart page, where they sign in.
+The links in the e-mail carry a token per cart, signed with the deployment key (`app/etc/env.php`). The guest's link copies the cart's items into the cart of the browser that opens it, unless a customer is signed in there, and closes the reminded cart: a forwarded link never makes two browsers share one cart. Customers' links open the cart page, where they sign in. The stop link opens a confirmation page; the address is opted out once the visitor confirms, or when the mailbox provider sends the one-click unsubscribe. Guests are greeted without a name, since the name typed at checkout is not checked.
+
+## Upgrading from 1.2
+
+`setup:upgrade` replaces the opted-out addresses by their SHA-256 hash: the module no longer keeps them in clear. The links of reminders sent before the upgrade stop working, since links now carry a signed token: a visitor who follows one gets *This cart is no longer available* or *This link is not valid*, and the next reminder brings working links.
 
 ## Upgrading from 1.1
 
@@ -74,9 +78,9 @@ Nothing to do for the settings: they keep their values, now read per website. A 
 ## Troubleshooting
 
 - **Nothing happens**: Magento cron must run (`bin/magento cron:run` every minute from the system crontab). Check `cron_schedule` for `mageos_abandoned_cart_reminders`.
-- **A customer gets nothing**: they are not subscribed to the newsletter (*Customers > Newsletter Subscribers*) while *Recipients* is *Newsletter subscribers only*, the module is off for the cart's website, the subtotal is below *Minimum Cart Subtotal*, no product of the cart is for sale any more, the cart is empty, converted or older than 30 days, all reminders were sent, or the address used the stop link (table `mageos_abandoned_cart_optout`; delete the row to resume).
+- **A customer gets nothing**: they are not subscribed to the newsletter (*Customers > Newsletter Subscribers*) while *Recipients* is *Newsletter subscribers only*, the module is off for the cart's website, the subtotal is below *Minimum Cart Subtotal*, no product of the cart is for sale any more, the cart is empty, converted or older than 30 days, all reminders were sent, the address used the stop link (table `mageos_abandoned_cart_optout`, keyed by `SHA2(LOWER('address'), 256)`; delete the row to resume), or the address already got 3 reminders this week.
 - **A guest gets nothing**: the guest did not get past the shipping step, so no e-mail is saved on the cart (`quote_address.email`).
-- **"This cart is no longer available"**: the order was placed, or the link was for a customer cart or was altered.
+- **"This cart is no longer available"**: the order was placed, the items were already restored by an earlier click (the reminded cart is then closed), the link predates 1.3.0, or it was altered.
 - **E-mail not delivered**: check *Stores > Configuration > Advanced > System > Mail Sending Settings* and the mail log.
 
 ## More

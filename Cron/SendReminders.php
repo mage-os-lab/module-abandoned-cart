@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace MageOS\AbandonedCart\Cron;
 
 use Exception;
+use MageOS\AbandonedCart\Model\ReminderLink;
 use MageOS\AbandonedCart\Model\Source\Recipients;
 use Magento\Catalog\Helper\Image;
 use Magento\Catalog\Model\Product;
@@ -32,6 +33,8 @@ use Psr\Log\LoggerInterface;
  *
  * Guest carts are reminded once the e-mail typed at checkout is saved on their address (after the shipping step).
  * Every e-mail carries a link, and a one-click List-Unsubscribe header, that stops the reminders for its address.
+ * An address gets at most MAX_PER_ADDRESS reminders a week whatever the number of carts, so carts made up with
+ * someone else's address cannot flood it.
  */
 class SendReminders
 {
@@ -40,6 +43,9 @@ class SendReminders
 
     /** Carts left longer than this are never reminded, so enabling the module does not mail years-old carts. */
     private const MAX_AGE_HOURS = 720;
+
+    private const MAX_PER_ADDRESS = 3;
+    private const ADDRESS_WINDOW_HOURS = 168;
 
     /**
      * @param CollectionFactory $quoteCollection
@@ -54,6 +60,7 @@ class SendReminders
      * @param ItemResolverInterface $itemResolver
      * @param PriceCurrencyInterface $priceCurrency
      * @param ResourceConnection $resource
+     * @param ReminderLink $reminderLink
      */
     public function __construct(
         private readonly CollectionFactory $quoteCollection,
@@ -67,7 +74,8 @@ class SendReminders
         private readonly Image $image,
         private readonly ItemResolverInterface $itemResolver,
         private readonly PriceCurrencyInterface $priceCurrency,
-        private readonly ResourceConnection $resource
+        private readonly ResourceConnection $resource,
+        private readonly ReminderLink $reminderLink
     ) {
     }
 
@@ -108,8 +116,9 @@ class SendReminders
     /**
      * Send reminder $step to the cart and record it
      *
-     * A cart with nothing left to buy (products disabled or out of stock) gets the step recorded without an
-     * e-mail, so it does not come back at every run and hold a place in the batch.
+     * A cart with nothing left to buy (products disabled or out of stock), whose address already got its weekly
+     * reminders, or whose e-mail failed gets the step recorded without an e-mail, so it does not come back at every
+     * run and hold a place in the batch.
      *
      * @param Quote $quote
      * @param int $step
@@ -118,21 +127,29 @@ class SendReminders
     private function remind(Quote $quote, int $step, int $sent): void
     {
         $storeId = (int) $quote->getStoreId();
-        $token = (string) $quote->getData('abandoned_reminder_token') ?: bin2hex(random_bytes(32));
-        $link = ['_scope' => $storeId, '_nosid' => true, '_query' => ['id' => $quote->getId(), 'token' => $token]];
-        $items = [];
+        $quoteId = (int) $quote->getId();
+        $secret = (string) $quote->getData('abandoned_reminder_token') ?: bin2hex(random_bytes(32));
+        $emailHash = $this->reminderLink->emailHash((string) $quote->getData('reminder_email'));
+        $token = $this->reminderLink->token($quoteId, $secret);
+        $link = [
+            '_scope' => $storeId,
+            '_secure' => true,
+            '_nosid' => true,
+            '_query' => ['id' => $quoteId, 'token' => $token],
+        ];
+        $mailed = false;
         $this->emulation->startEnvironmentEmulation($storeId, Area::AREA_FRONTEND, true);
         try {
             $items = $this->items($quote);
-            if ($items) {
+            if ($items && $this->sentToAddress($emailHash) < self::MAX_PER_ADDRESS) {
                 $this->send($quote, $step, $items, [
                     'cart_url' => $this->url->getUrl('abandonedcart/reminder/restore', $link),
                     'unsubscribe_url' => $this->url->getUrl('abandonedcart/reminder/unsubscribe', $link),
                 ]);
+                $mailed = true;
             }
         } catch (Exception $e) {
-            $this->logger->error('Abandoned cart reminder failed for quote ' . $quote->getId(), ['exception' => $e]);
-            return;
+            $this->logger->error('Abandoned cart reminder failed for quote ' . $quoteId, ['exception' => $e]);
         } finally {
             $this->emulation->stopEnvironmentEmulation();
         }
@@ -143,17 +160,34 @@ class SendReminders
             [
                 'abandoned_reminder_count' => $sent + 1,
                 'abandoned_reminder_sent_at' => gmdate('Y-m-d H:i:s'),
-                'abandoned_reminder_token' => $token,
+                'abandoned_reminder_token' => $secret,
                 'updated_at' => new Expression('updated_at'),
             ],
-            ['entity_id = ?' => $quote->getId()]
+            ['entity_id = ?' => $quoteId]
         );
-        if ($items) {
+        if ($mailed) {
             $connection->insert(
                 $this->resource->getTableName('mageos_abandoned_cart_reminder'),
-                ['quote_id' => $quote->getId(), 'store_id' => $storeId, 'step' => $step]
+                ['quote_id' => $quoteId, 'store_id' => $storeId, 'step' => $step, 'email_hash' => $emailHash]
             );
         }
+    }
+
+    /**
+     * Reminders sent to the address over the last week
+     *
+     * @param string $emailHash
+     * @return int
+     */
+    private function sentToAddress(string $emailHash): int
+    {
+        $connection = $this->resource->getConnection();
+        return (int) $connection->fetchOne(
+            $connection->select()
+                ->from($this->resource->getTableName('mageos_abandoned_cart_reminder'), ['COUNT(*)'])
+                ->where('email_hash = ?', $emailHash)
+                ->where('sent_at > ?', $this->hoursAgo(self::ADDRESS_WINDOW_HOURS))
+        );
     }
 
     /**
@@ -233,7 +267,7 @@ class SendReminders
             ->where("$email IS NOT NULL")
             ->where('NOT EXISTS (' . $connection->select()
                 ->from(['optout' => $quotes->getTable('mageos_abandoned_cart_optout')], [new Expression('1')])
-                ->where("optout.email = $email")
+                ->where("optout.email_hash = SHA2(LOWER(TRIM($email)), 256)")
                 ->assemble() . ')');
         if ($this->websiteValue('general/recipients', $websiteId) !== Recipients::ALL) {
             $select->where('EXISTS (' . $connection->select()
@@ -260,16 +294,16 @@ class SendReminders
     }
 
     /**
-     * Customer name, or the name on the address for a guest
+     * Name of the customer account, empty for a guest: a name typed at checkout could carry someone else's text
      *
      * @param Quote $quote
      * @return string
      */
     private function customerName(Quote $quote): string
     {
-        $name = trim($quote->getCustomerFirstname() . ' ' . $quote->getCustomerLastname());
-        $address = $quote->getShippingAddress();
-        return $name ?: trim($address->getFirstname() . ' ' . $address->getLastname());
+        return $quote->getCustomerId()
+            ? trim($quote->getCustomerFirstname() . ' ' . $quote->getCustomerLastname())
+            : '';
     }
 
     /**

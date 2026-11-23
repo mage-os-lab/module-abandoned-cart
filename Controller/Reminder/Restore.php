@@ -10,12 +10,16 @@ use Magento\Framework\App\Action\HttpGetActionInterface;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Controller\Result\RedirectFactory;
 use Magento\Framework\Message\ManagerInterface;
+use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Quote\Model\Quote;
 
 /**
- * Puts a guest's abandoned cart back in the session from the link of a reminder, then opens the cart.
+ * Copies the items of a guest's abandoned cart into the visitor's own cart from the link of a reminder, then opens
+ * the cart.
  *
- * A customer's cart is not put in the session: the customer finds it on the cart page once signed in. A signed-in
- * visitor keeps their own cart.
+ * The reminded cart itself never goes into the session: whoever holds it (the link may have been forwarded) would
+ * share the visitor's checkout data. It is closed instead, its reminders credited to the visitor's cart. A customer's
+ * cart is not touched: the customer finds it on the cart page once signed in. A signed-in visitor keeps their own cart.
  */
 class Restore implements HttpGetActionInterface
 {
@@ -24,6 +28,7 @@ class Restore implements HttpGetActionInterface
      * @param ReminderLink $reminderLink
      * @param CheckoutSession $checkoutSession
      * @param CustomerSession $customerSession
+     * @param CartRepositoryInterface $quoteRepository
      * @param ManagerInterface $messages
      * @param RedirectFactory $redirectFactory
      */
@@ -32,6 +37,7 @@ class Restore implements HttpGetActionInterface
         private readonly ReminderLink $reminderLink,
         private readonly CheckoutSession $checkoutSession,
         private readonly CustomerSession $customerSession,
+        private readonly CartRepositoryInterface $quoteRepository,
         private readonly ManagerInterface $messages,
         private readonly RedirectFactory $redirectFactory
     ) {
@@ -48,9 +54,29 @@ class Restore implements HttpGetActionInterface
             return $this->redirectFactory->create()->setPath('checkout/cart');
         }
         $this->reminderLink->recordClick((int) $quote->getId());
-        if (!$quote->getCustomerId() && !$this->customerSession->isLoggedIn()) {
-            $this->checkoutSession->replaceQuote($quote);
+        if (!$quote->getCustomerId() && !$this->customerSession->isLoggedIn()
+            && (int) $this->checkoutSession->getQuoteId() !== (int) $quote->getId()
+        ) {
+            $this->copyIntoSessionCart($quote);
         }
         return $this->redirectFactory->create()->setPath('checkout/cart');
+    }
+
+    /**
+     * Merge the items of the reminded cart into the session cart, which takes over its reminder count, and close it
+     *
+     * @param Quote $quote
+     */
+    private function copyIntoSessionCart(Quote $quote): void
+    {
+        $current = $this->checkoutSession->getQuote();
+        $current->merge($quote)
+            ->setData('abandoned_reminder_count', $quote->getData('abandoned_reminder_count'))
+            ->setData('abandoned_reminder_sent_at', $quote->getData('abandoned_reminder_sent_at'))
+            ->collectTotals();
+        $this->quoteRepository->save($current);
+        $this->checkoutSession->setQuoteId($current->getId());
+        $this->reminderLink->moveReminders((int) $quote->getId(), (int) $current->getId());
+        $this->quoteRepository->save($quote->setIsActive(false));
     }
 }

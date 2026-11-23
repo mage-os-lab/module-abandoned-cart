@@ -2,6 +2,22 @@
 
 All notable changes to this module are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow [Semantic Versioning](https://semver.org/).
 
+## [1.3.0]
+
+### Security
+
+- The guest restore link copies the cart's items into the visitor's own cart and closes the reminded cart, instead of putting that cart in the visitor's session: a forwarded link let its sender read and change the checkout data of whoever followed it.
+- An e-mail address gets at most 3 reminders a week, all carts together, and guests are greeted without the name typed at checkout: carts filled in with someone else's address could flood it with text of the attacker's choosing.
+- The stop link opens a confirmation page and opts out only on its POST or on the one-click POST, so mail scanners that follow links no longer unsubscribe people.
+- The stop link opts out the address the reminder was sent to, logged with the reminder, and not the cart's current address.
+- Reminder links are forced to HTTPS and carry an HMAC of the cart's secret under the deployment key: the secret itself shows in the storefront's checkout data. Links of reminders sent before 1.3.0 stop working.
+- Opted-out addresses are kept as a SHA-256 hash; `setup:upgrade` hashes the existing ones.
+- A malformed token (`token[]=`) no longer causes an error page.
+
+### Fixed
+
+- A reminder whose e-mail fails is recorded as skipped instead of being retried at every run, where enough of them held the whole batch.
+
 ## [1.2.1]
 
 ### Fixed

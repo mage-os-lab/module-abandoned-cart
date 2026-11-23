@@ -1,6 +1,6 @@
 <!--@subject {{trans "Last reminder about your cart"}} @-->
 <!--@vars {
-"var customer_name":"Customer name",
+"var customer_name":"Customer account name, empty for a guest",
 "var items":"Cart items",
 "var item.name":"Cart item name (already HTML-escaped)",
 "var item.qty":"Cart item quantity",
@@ -12,7 +12,7 @@
 } @-->
 {{template config_path="design/email/header_template"}}
 
-<p>{{trans "Hello %name," name=$customer_name}}</p>
+<p>{{if customer_name}}{{trans "Hello %name," name=$customer_name}}{{else}}{{trans "Hello,"}}{{/if}}</p>
 <p>{{trans "This is our last reminder. Your cart still holds:"}}</p>
 <table style="width: 100%; border-collapse: collapse">
     {{for item in items}}

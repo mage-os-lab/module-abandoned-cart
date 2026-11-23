@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace MageOS\AbandonedCart\Test\Integration;
 
+use MageOS\AbandonedCart\Model\ReminderLink;
 use MageOS\AbandonedCart\Observer\RecordOrder;
 use Magento\Catalog\Test\Fixture\Product as ProductFixture;
 use Magento\Checkout\Model\Session as CheckoutSession;
@@ -35,51 +36,76 @@ use Magento\TestFramework\TestCase\AbstractController;
 ]
 class ReminderLinksTest extends AbstractController
 {
-    private const TOKEN = 'secret-token';
+    private const SECRET = 'cart-secret';
 
     /**
-     * The restore link puts the guest cart in the visitor's session.
+     * The restore link copies the guest cart into the visitor's own cart, closes it and moves its reminders and the
+     * click over, so whoever else holds the reminded cart shares nothing with the visitor.
      */
-    public function testRestorePutsTheGuestCartInTheSession(): void
+    public function testRestoreCopiesTheGuestCartIntoTheVisitorCart(): void
     {
-        $this->dispatch($this->link('restore', self::TOKEN));
+        $this->logReminder();
+        $this->dispatch($this->link('restore'));
 
         $this->assertRedirect($this->stringContains('checkout/cart'));
-        $this->assertSame($this->cartId(), (int) $this->_objectManager->get(CheckoutSession::class)->getQuoteId());
+        $sessionQuote = $this->_objectManager->get(CheckoutSession::class)->getQuote();
+        $this->assertNotSame($this->cartId(), (int) $sessionQuote->getId());
+        $this->assertCount(1, $sessionQuote->getAllVisibleItems());
+        $this->assertSame('0', (string) $this->quoteValue($this->cartId(), 'is_active'));
+        $this->assertSame([], $this->loggedRows($this->cartId()));
+        $this->assertNotNull($this->loggedRows((int) $sessionQuote->getId())[0]['clicked_at']);
     }
 
     /**
-     * A wrong token restores nothing.
+     * A wrong or malformed token restores nothing.
      */
     public function testRestoreRefusesAWrongToken(): void
     {
         $this->dispatch($this->link('restore', 'wrong'));
-
         $this->assertNotSame($this->cartId(), (int) $this->_objectManager->get(CheckoutSession::class)->getQuoteId());
+        $this->assertSame('1', (string) $this->quoteValue($this->cartId(), 'is_active'));
+        $this->resetRequest();
+
+        $this->link('restore');
+        $this->getRequest()->setParam('token', ['x']);
+        $this->dispatch('abandonedcart/reminder/restore');
+        $this->assertRedirect($this->stringContains('checkout/cart'));
     }
 
     /**
-     * The stop link records the address in lower case; a wrong token records nothing.
+     * Opening the stop link only shows the confirmation form: a mail scanner following it unsubscribes nobody.
      */
-    public function testUnsubscribeRecordsTheAddressOnlyWithTheRightToken(): void
+    public function testUnsubscribeGetOnlyAsksForConfirmation(): void
     {
-        $this->dispatch($this->link('unsubscribe', 'wrong'));
+        $this->dispatch($this->link('unsubscribe'));
+
+        $this->assertStringContainsString('<form method="post"', $this->getResponse()->getBody());
+        $this->assertSame([], $this->optedOut());
+    }
+
+    /**
+     * Confirming records the address the last reminder went to, even when the cart now has another one; a wrong
+     * token records nothing.
+     */
+    public function testUnsubscribePostRecordsTheRemindedAddressOnlyWithTheRightToken(): void
+    {
+        $this->logReminder(hash('sha256', 'reminded@example.com'));
+        $this->post($this->link('unsubscribe', 'wrong'));
         $this->assertSame([], $this->optedOut());
         $this->resetRequest();
 
-        $this->dispatch($this->link('unsubscribe', self::TOKEN));
-        $this->assertSame(['guest@example.com'], $this->optedOut());
+        $this->post($this->link('unsubscribe'));
+        $this->assertSame([hash('sha256', 'reminded@example.com')], $this->optedOut());
     }
 
     /**
-     * Following the restore link marks the cart's last reminder as clicked.
+     * A cart reminded before 1.3.0 has no address logged: the cart's own e-mail is opted out, lower-cased.
      */
-    public function testRestoreRecordsTheClick(): void
+    public function testUnsubscribeFallsBackToTheCartEmail(): void
     {
-        $this->logReminder();
-        $this->dispatch($this->link('restore', self::TOKEN));
+        $this->post($this->link('unsubscribe'));
 
-        $this->assertNotNull($this->loggedValue('clicked_at'));
+        $this->assertSame([hash('sha256', 'guest@example.com')], $this->optedOut());
     }
 
     /**
@@ -87,12 +113,12 @@ class ReminderLinksTest extends AbstractController
      */
     public function testOneClickPostUnsubscribes(): void
     {
-        $path = $this->link('unsubscribe', self::TOKEN);
+        $path = $this->link('unsubscribe');
         $this->getRequest()->setMethod(HttpRequest::METHOD_POST)->setPostValue('List-Unsubscribe', 'One-Click');
         $this->dispatch($path);
 
         $this->assertSame(200, $this->getResponse()->getHttpResponseCode());
-        $this->assertSame(['guest@example.com'], $this->optedOut());
+        $this->assertSame([hash('sha256', 'guest@example.com')], $this->optedOut());
     }
 
     /**
@@ -108,53 +134,84 @@ class ReminderLinksTest extends AbstractController
             'event' => new Event(['quote' => $quote, 'order' => $order]),
         ]));
 
-        $this->assertSame('42', $this->loggedValue('order_id'));
-        $this->assertEquals(99.5, $this->loggedValue('base_order_total'));
+        $row = $this->loggedRows($this->cartId())[0];
+        $this->assertSame('42', $row['order_id']);
+        $this->assertEquals(99.5, $row['base_order_total']);
     }
 
     /**
      * Log a sent reminder for the fixture cart.
+     *
+     * @param string|null $emailHash
      */
-    private function logReminder(): void
+    private function logReminder(?string $emailHash = null): void
     {
         $resource = $this->_objectManager->get(ResourceConnection::class);
         $resource->getConnection()->insert(
             $resource->getTableName('mageos_abandoned_cart_reminder'),
-            ['quote_id' => $this->cartId(), 'store_id' => 1, 'step' => 1]
+            ['quote_id' => $this->cartId(), 'store_id' => 1, 'step' => 1, 'email_hash' => $emailHash]
         );
     }
 
     /**
-     * Column of the fixture cart's logged reminder.
+     * Logged reminders of a cart.
      *
+     * @param int $quoteId
+     * @return array<int, array<string, mixed>>
+     */
+    private function loggedRows(int $quoteId): array
+    {
+        $resource = $this->_objectManager->get(ResourceConnection::class);
+        $connection = $resource->getConnection();
+        return $connection->fetchAll(
+            $connection->select()
+                ->from($resource->getTableName('mageos_abandoned_cart_reminder'))
+                ->where('quote_id = ?', $quoteId)
+        );
+    }
+
+    /**
+     * Column of a cart, read from the database.
+     *
+     * @param int $quoteId
      * @param string $column
      * @return mixed
      */
-    private function loggedValue(string $column): mixed
+    private function quoteValue(int $quoteId, string $column): mixed
     {
         $resource = $this->_objectManager->get(ResourceConnection::class);
         $connection = $resource->getConnection();
         return $connection->fetchOne(
-            $connection->select()
-                ->from($resource->getTableName('mageos_abandoned_cart_reminder'), $column)
-                ->where('quote_id = ?', $this->cartId())
+            $connection->select()->from($resource->getTableName('quote'), $column)->where('entity_id = ?', $quoteId)
         );
     }
 
     /**
-     * Give the fixture cart a known token, set the link parameters and return the link path.
+     * Give the fixture cart a known secret, set the link parameters and return the link path.
      *
      * @param string $action
-     * @param string $token
+     * @param string|null $token the right token when null
      * @return string
      */
-    private function link(string $action, string $token): string
+    private function link(string $action, ?string $token = null): string
     {
         $quoteRepository = $this->_objectManager->get(CartRepositoryInterface::class);
         $quote = $quoteRepository->get($this->cartId());
-        $quoteRepository->save($quote->setData('abandoned_reminder_token', self::TOKEN));
+        $quoteRepository->save($quote->setData('abandoned_reminder_token', self::SECRET));
+        $token ??= $this->_objectManager->get(ReminderLink::class)->token($this->cartId(), self::SECRET);
         $this->getRequest()->setParams(['id' => $this->cartId(), 'token' => $token]);
         return 'abandonedcart/reminder/' . $action;
+    }
+
+    /**
+     * Dispatch a POST, as the confirmation form sends it.
+     *
+     * @param string $path
+     */
+    private function post(string $path): void
+    {
+        $this->getRequest()->setMethod(HttpRequest::METHOD_POST);
+        $this->dispatch($path);
     }
 
     /**
@@ -167,7 +224,7 @@ class ReminderLinksTest extends AbstractController
         $resource = $this->_objectManager->get(ResourceConnection::class);
         $connection = $resource->getConnection();
         return $connection->fetchCol(
-            $connection->select()->from($resource->getTableName('mageos_abandoned_cart_optout'), 'email')
+            $connection->select()->from($resource->getTableName('mageos_abandoned_cart_optout'), 'email_hash')
         );
     }
 

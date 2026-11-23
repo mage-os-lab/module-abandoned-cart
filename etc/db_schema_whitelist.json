@@ -9,7 +9,8 @@
     "mageos_abandoned_cart_optout": {
         "column": {
             "email": true,
-            "created_at": true
+            "created_at": true,
+            "email_hash": true
         },
         "constraint": {
             "PRIMARY": true
@@ -24,11 +25,13 @@
             "sent_at": true,
             "clicked_at": true,
             "order_id": true,
-            "base_order_total": true
+            "base_order_total": true,
+            "email_hash": true
         },
         "index": {
             "MAGEOS_ABANDONED_CART_REMINDER_QUOTE_ID": true,
-            "MAGEOS_ABANDONED_CART_REMINDER_SENT_AT": true
+            "MAGEOS_ABANDONED_CART_REMINDER_SENT_AT": true,
+            "MAGEOS_ABANDONED_CART_REMINDER_EMAIL_HASH_SENT_AT": true
         },
         "constraint": {
             "PRIMARY": true

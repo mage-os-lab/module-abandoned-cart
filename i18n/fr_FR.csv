@@ -40,3 +40,5 @@ Revenue,Chiffre d'affaires
 Total,Total
 Reminder %1,Rappel %1
 "An order is credited to the last reminder its cart received, whether or not the link was followed. Revenue is the grand total in base currency.","Une commande est attribuée au dernier rappel reçu par son panier, que le lien ait été suivi ou non. Le chiffre d'affaires est le total TTC dans la devise de base."
+"Hello,","Bonjour,"
+"Do you want to stop the cart reminders sent to your e-mail address?","Voulez-vous ne plus recevoir de rappels de panier à votre adresse e-mail ?"

@@ -83,10 +83,32 @@ class SendRemindersTest extends TestCase
     {
         $this->connection()->insert(
             $this->table('mageos_abandoned_cart_optout'),
-            ['email' => strtoupper((string) DataFixtureStorageManager::getStorage()->get('customer')->getEmail())]
+            ['email_hash' => hash('sha256', $this->customerEmail())]
         );
 
         $this->assertSame(0, $this->runOnOldCart());
+    }
+
+    /**
+     * An address that got its three reminders of the week gets no more, whatever the cart: its step is recorded
+     * without an e-mail.
+     */
+    #[
+        Config('mageos_abandoned_cart/general/enabled', 1, 'website', 'base'),
+        Config('mageos_abandoned_cart/general/recipients', 'all', 'website', 'base'),
+    ]
+    public function testAddressOverTheWeeklyCapGetsNoReminder(): void
+    {
+        foreach ([1, 2, 3] as $otherCart) {
+            $this->connection()->insert(
+                $this->table('mageos_abandoned_cart_reminder'),
+                ['quote_id' => 100000 + $otherCart, 'store_id' => 1, 'step' => 1,
+                    'email_hash' => hash('sha256', $this->customerEmail())]
+            );
+        }
+
+        $this->assertSame(1, $this->runOnOldCart());
+        $this->assertSame([], $this->loggedSteps());
     }
 
     /**
@@ -193,6 +215,14 @@ class SendRemindersTest extends TestCase
     {
         $this->assertSame(1, $this->runOnOldCart());
         $this->assertSame(64, strlen((string) $this->quoteValue('abandoned_reminder_token')));
+        $this->assertSame(
+            [hash('sha256', 'guest@example.com')],
+            $this->connection()->fetchCol(
+                $this->connection()->select()
+                    ->from($this->table('mageos_abandoned_cart_reminder'), 'email_hash')
+                    ->where('quote_id = ?', $this->cartId())
+            )
+        );
     }
 
     /**
@@ -254,6 +284,16 @@ class SendRemindersTest extends TestCase
         return $this->connection()->fetchOne(
             $this->connection()->select()->from($this->table('quote'), $column)->where('entity_id = ?', $this->cartId())
         );
+    }
+
+    /**
+     * Lower-cased e-mail of the fixture customer.
+     *
+     * @return string
+     */
+    private function customerEmail(): string
+    {
+        return strtolower((string) DataFixtureStorageManager::getStorage()->get('customer')->getEmail());
     }
 
     /**

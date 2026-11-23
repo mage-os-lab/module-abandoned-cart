@@ -11,11 +11,12 @@
     </table>
     <table name="mageos_abandoned_cart_optout" resource="default" engine="innodb"
            comment="E-mail addresses that stopped abandoned cart reminders">
-        <column xsi:type="varchar" name="email" length="255" nullable="false" comment="E-mail"/>
+        <column xsi:type="varchar" name="email_hash" length="255" nullable="false" onCreate="migrateDataFrom(email)"
+                comment="SHA-256 of the lower-cased e-mail"/>
         <column xsi:type="timestamp" name="created_at" on_update="false" nullable="false" default="CURRENT_TIMESTAMP"
                 comment="Opted out at"/>
         <constraint xsi:type="primary" referenceId="PRIMARY">
-            <column name="email"/>
+            <column name="email_hash"/>
         </constraint>
     </table>
     <table name="mageos_abandoned_cart_reminder" resource="default" engine="innodb"
@@ -24,6 +25,8 @@
         <column xsi:type="int" name="quote_id" unsigned="true" nullable="false" comment="Cart"/>
         <column xsi:type="smallint" name="store_id" unsigned="true" nullable="false" comment="Store view"/>
         <column xsi:type="smallint" name="step" unsigned="true" nullable="false" comment="Reminder 1, 2 or 3"/>
+        <column xsi:type="varchar" name="email_hash" length="64" nullable="true"
+                comment="SHA-256 of the lower-cased e-mail it was sent to"/>
         <column xsi:type="timestamp" name="sent_at" on_update="false" nullable="false" default="CURRENT_TIMESTAMP"
                 comment="Sent at"/>
         <column xsi:type="timestamp" name="clicked_at" on_update="false" nullable="true"
@@ -38,6 +41,10 @@
             <column name="quote_id"/>
         </index>
         <index referenceId="MAGEOS_ABANDONED_CART_REMINDER_SENT_AT" indexType="btree">
+            <column name="sent_at"/>
+        </index>
+        <index referenceId="MAGEOS_ABANDONED_CART_REMINDER_EMAIL_HASH_SENT_AT" indexType="btree">
+            <column name="email_hash"/>
             <column name="sent_at"/>
         </index>
     </table>

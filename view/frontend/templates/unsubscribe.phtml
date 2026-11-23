@@ -1,0 +1,21 @@
+<?php
+declare(strict_types=1);
+
+/** @var \Magento\Framework\View\Element\Template $block */
+/** @var \Magento\Framework\Escaper $escaper */
+$action = $block->getUrl('abandonedcart/reminder/unsubscribe', [
+    '_secure' => true,
+    '_query' => [
+        'id' => (int) $block->getRequest()->getParam('id'),
+        'token' => (string) $block->getRequest()->getParam('token'),
+    ],
+]);
+?>
+<form method="post" action="<?= $escaper->escapeUrl($action) ?>" class="my-6">
+    <p class="mb-4">
+        <?= $escaper->escapeHtml(__('Do you want to stop the cart reminders sent to your e-mail address?')) ?>
+    </p>
+    <button type="submit" class="action primary btn btn-primary">
+        <span><?= $escaper->escapeHtml(__('Stop cart reminders')) ?></span>
+    </button>
+</form>

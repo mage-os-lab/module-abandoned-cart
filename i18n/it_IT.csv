@@ -40,3 +40,5 @@ Revenue,Fatturato
 Total,Totale
 Reminder %1,Promemoria %1
 "An order is credited to the last reminder its cart received, whether or not the link was followed. Revenue is the grand total in base currency.","Un ordine viene attribuito all'ultimo promemoria ricevuto dal suo carrello, che il link sia stato seguito o no. Il fatturato è il totale complessivo nella valuta di base."
+"Hello,","Ciao,"
+"Do you want to stop the cart reminders sent to your e-mail address?","Vuoi smettere di ricevere promemoria del carrello al tuo indirizzo e-mail?"
