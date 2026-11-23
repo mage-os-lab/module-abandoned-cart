@@ -231,16 +231,18 @@ class SendReminders
         $select = $quotes->getSelect()
             ->columns(['reminder_email' => $email])
             ->where("$email IS NOT NULL")
-            ->where('NOT EXISTS ?', $connection->select()
+            ->where('NOT EXISTS (' . $connection->select()
                 ->from(['optout' => $quotes->getTable('mageos_abandoned_cart_optout')], [new Expression('1')])
-                ->where("optout.email = $email"));
+                ->where("optout.email = $email")
+                ->assemble() . ')');
         if ($this->websiteValue('general/recipients', $websiteId) !== Recipients::ALL) {
-            $select->where('EXISTS ?', $connection->select()
+            $select->where('EXISTS (' . $connection->select()
                 ->from(['ns' => $quotes->getTable('newsletter_subscriber')], [new Expression('1')])
                 ->join(['ns_store' => $quotes->getTable('store')], 'ns_store.store_id = ns.store_id', [])
                 ->where("ns.subscriber_email = $email")
                 ->where('ns.subscriber_status = ?', Subscriber::STATUS_SUBSCRIBED)
-                ->where('ns_store.website_id = ?', $websiteId));
+                ->where('ns_store.website_id = ?', $websiteId)
+                ->assemble() . ')');
         }
         return $quotes;
     }
