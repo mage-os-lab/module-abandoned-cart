@@ -2,7 +2,11 @@
 
 All notable changes to this module are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [1.4.0] - 2026-11-24
+
+A reminder whose e-mail fails is tried again instead of being lost, and reminders can be tested from the admin and tracked in analytics tools.
+
+Upgrade: the update adds two columns to the `quote` table; on a large shop, plan it like any change to that table.
 
 ### Added
 
