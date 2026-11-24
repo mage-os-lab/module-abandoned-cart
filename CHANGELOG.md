@@ -2,7 +2,7 @@
 
 All notable changes to this module are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow [Semantic Versioning](https://semver.org/).
 
-## [1.3.0]
+## [1.3.0] - 2026-11-23
 
 ### Security
 
@@ -18,13 +18,13 @@ All notable changes to this module are documented here. The format follows [Keep
 
 - A reminder whose e-mail fails is recorded as skipped instead of being retried at every run, where enough of them held the whole batch.
 
-## [1.2.1]
+## [1.2.1] - 2026-11-23
 
 ### Fixed
 
 - PHPStan 2 error in the reminder query: the opt-out and newsletter subqueries are built as plain SQL strings.
 
-## [1.2.0]
+## [1.2.0] - 2026-11-23
 
 ### Added
 
@@ -54,7 +54,7 @@ All notable changes to this module are documented here. The format follows [Keep
 - Settings moved from *Reminder E-mail* to *General* and *Reminder 1*; `setup:upgrade` migrates them.
 - Carts last changed more than 30 days ago are no longer reminded.
 
-## [1.0.0]
+## [1.0.0] - 2026-11-17
 
 ### Added
 
