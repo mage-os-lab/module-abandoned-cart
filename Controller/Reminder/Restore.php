@@ -59,7 +59,11 @@ class Restore implements HttpGetActionInterface
         ) {
             $this->copyIntoSessionCart($quote);
         }
-        return $this->redirectFactory->create()->setPath('checkout/cart');
+        // The campaign parameters follow to the cart page: the redirect itself runs no analytics script.
+        return $this->redirectFactory->create()->setPath(
+            'checkout/cart',
+            ['_query' => $this->reminderLink->utmFrom($this->request->getParams())]
+        );
     }
 
     /**

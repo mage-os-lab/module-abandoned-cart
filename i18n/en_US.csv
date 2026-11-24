@@ -42,3 +42,13 @@ Reminder %1,Reminder %1
 "An order is credited to the last reminder its cart received, whether or not the link was followed. Revenue is the grand total in base currency.","An order is credited to the last reminder its cart received, whether or not the link was followed. Revenue is the grand total in base currency."
 "Hello,","Hello,"
 "Do you want to stop the cart reminders sent to your e-mail address?","Do you want to stop the cart reminders sent to your e-mail address?"
+Add Campaign Parameters to the Cart Link,Add Campaign Parameters to the Cart Link
+"Adds utm_source=abandoned_cart, utm_medium=email and utm_campaign=reminder_1, 2 or 3, so your analytics tool credits the visit to the reminder.","Adds utm_source=abandoned_cart, utm_medium=email and utm_campaign=reminder_1, 2 or 3, so your analytics tool credits the visit to the reminder."
+The test e-mail needs an enabled simple product with a price in this store view.,The test e-mail needs an enabled simple product with a price in this store view.
+Send a Test E-mail,Send a Test E-mail
+Store View,Store View
+Send,Send
+"Sent to your address, %1, with the saved settings and a few products of the store view as the cart. Its links open the cart page.","Sent to your address, %1, with the saved settings and a few products of the store view as the cart. Its links open the cart page."
+Reminder %1 was sent as a test to %2.,Reminder %1 was sent as a test to %2.
+The test e-mail could not be sent.,The test e-mail could not be sent.
+Choose a reminder and a store view.,Choose a reminder and a store view.

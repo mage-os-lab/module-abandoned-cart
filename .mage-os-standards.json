@@ -27,7 +27,7 @@
     }
   },
   "notes": [
-    "Integration tests (Test/Integration) were written for the check-extension CI and not run locally; the module has no unit tests, so the unit-test-extension job is disabled.",
+    "Integration tests (Test/Integration) were written for the check-extension CI and not run locally; unit tests (Test/Unit) cover the retry rule and the campaign parameters since 1.4.",
     "CI runs on github.com/mage-os-lab/module-abandoned-cart.",
     "Recipients configurable since 1.1.0: newsletter subscribers only (default) or all customers and guests, every reminder with a stop link (maintainer decision 2026-11-18)."
   ]

@@ -43,6 +43,32 @@ class ReminderLink
     }
 
     /**
+     * Campaign parameters of the cart link of reminder $step, read by analytics tools
+     *
+     * @param int $step
+     * @return array<string,string>
+     */
+    public function utm(int $step): array
+    {
+        // shortcut: fixed values; make them settings if merchants need their own campaign names.
+        return ['utm_source' => 'abandoned_cart', 'utm_medium' => 'email', 'utm_campaign' => 'reminder_' . $step];
+    }
+
+    /**
+     * Campaign parameters of a followed link, to pass on to the cart page where the analytics script runs
+     *
+     * @param array<mixed> $params
+     * @return array<string,string>
+     */
+    public function utmFrom(array $params): array
+    {
+        return array_filter(
+            array_intersect_key($params, $this->utm(0)),
+            fn ($value) => is_string($value) && preg_match('/^[\w.-]{1,64}$/', $value)
+        );
+    }
+
+    /**
      * Key of an e-mail address in the opt-out and reminder tables, so they hold no address in clear
      *
      * @param string $email

@@ -7,6 +7,7 @@
                 <enabled>0</enabled>
                 <recipients>subscribers</recipients>
                 <min_subtotal>0</min_subtotal>
+                <utm>0</utm>
             </general>
             <reminder1>
                 <delay_hours>24</delay_hours>

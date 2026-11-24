@@ -42,3 +42,13 @@ Reminder %1,Promemoria %1
 "An order is credited to the last reminder its cart received, whether or not the link was followed. Revenue is the grand total in base currency.","Un ordine viene attribuito all'ultimo promemoria ricevuto dal suo carrello, che il link sia stato seguito o no. Il fatturato è il totale complessivo nella valuta di base."
 "Hello,","Ciao,"
 "Do you want to stop the cart reminders sent to your e-mail address?","Vuoi smettere di ricevere promemoria del carrello al tuo indirizzo e-mail?"
+Add Campaign Parameters to the Cart Link,Aggiungi parametri di campagna al link del carrello
+"Adds utm_source=abandoned_cart, utm_medium=email and utm_campaign=reminder_1, 2 or 3, so your analytics tool credits the visit to the reminder.","Aggiunge utm_source=abandoned_cart, utm_medium=email e utm_campaign=reminder_1, 2 o 3, in modo che il tuo strumento di analisi attribuisca la visita al promemoria."
+The test e-mail needs an enabled simple product with a price in this store view.,"L'e-mail di prova richiede un prodotto semplice abilitato, con un prezzo, in questa vista negozio."
+Send a Test E-mail,Invia un'e-mail di prova
+Store View,Vista negozio
+Send,Invia
+"Sent to your address, %1, with the saved settings and a few products of the store view as the cart. Its links open the cart page.","Inviata al tuo indirizzo, %1, con le impostazioni salvate e alcuni prodotti della vista negozio come carrello. I suoi link aprono la pagina del carrello."
+Reminder %1 was sent as a test to %2.,Il promemoria %1 è stato inviato come prova a %2.
+The test e-mail could not be sent.,Impossibile inviare l'e-mail di prova.
+Choose a reminder and a store view.,Scegli un promemoria e una vista negozio.

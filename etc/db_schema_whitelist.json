@@ -3,7 +3,9 @@
         "column": {
             "abandoned_reminder_sent_at": true,
             "abandoned_reminder_count": true,
-            "abandoned_reminder_token": true
+            "abandoned_reminder_token": true,
+            "abandoned_reminder_failures": true,
+            "abandoned_reminder_retry_at": true
         }
     },
     "mageos_abandoned_cart_optout": {

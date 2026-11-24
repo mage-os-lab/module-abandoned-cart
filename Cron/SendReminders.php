@@ -5,17 +5,14 @@ namespace MageOS\AbandonedCart\Cron;
 
 use Exception;
 use MageOS\AbandonedCart\Model\ReminderLink;
+use MageOS\AbandonedCart\Model\ReminderMail;
 use MageOS\AbandonedCart\Model\Source\Recipients;
-use Magento\Catalog\Helper\Image;
 use Magento\Catalog\Model\Product;
 use Magento\Catalog\Model\Product\Configuration\Item\ItemResolverInterface;
 use Magento\Framework\App\Area;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\DB\Sql\Expression;
-use Magento\Framework\Escaper;
-use Magento\Framework\Mail\EmailMessage;
-use Magento\Framework\Mail\Template\TransportBuilder;
 use Magento\Framework\Pricing\PriceCurrencyInterface;
 use Magento\Framework\UrlInterface;
 use Magento\Newsletter\Model\Subscriber;
@@ -31,10 +28,11 @@ use Psr\Log\LoggerInterface;
 /**
  * Sends up to three reminder e-mails per abandoned cart, each with its own delay and template, website by website.
  *
- * Guest carts are reminded once the e-mail typed at checkout is saved on their address (after the shipping step).
+ * Guest carts are reminded once the e-mail typed at checkout is saved on the cart or on one of its addresses.
  * Every e-mail carries a link, and a one-click List-Unsubscribe header, that stops the reminders for its address.
  * An address gets at most MAX_PER_ADDRESS reminders a week whatever the number of carts, so carts made up with
- * someone else's address cannot flood it.
+ * someone else's address cannot flood it. A reminder whose sending fails is tried again after each of RETRY_HOURS,
+ * then passed over.
  */
 class SendReminders
 {
@@ -47,35 +45,34 @@ class SendReminders
     private const MAX_PER_ADDRESS = 3;
     private const ADDRESS_WINDOW_HOURS = 168;
 
+    /** Hours to wait before each new try of a reminder whose sending failed; after the last one it is passed over. */
+    public const RETRY_HOURS = [1, 6];
+
     /**
      * @param CollectionFactory $quoteCollection
      * @param ScopeConfigInterface $config
-     * @param TransportBuilder $transportBuilder
-     * @param Escaper $escaper
      * @param LoggerInterface $logger
      * @param UrlInterface $url
      * @param StoreManagerInterface $storeManager
      * @param Emulation $emulation
-     * @param Image $image
      * @param ItemResolverInterface $itemResolver
      * @param PriceCurrencyInterface $priceCurrency
      * @param ResourceConnection $resource
      * @param ReminderLink $reminderLink
+     * @param ReminderMail $mail
      */
     public function __construct(
         private readonly CollectionFactory $quoteCollection,
         private readonly ScopeConfigInterface $config,
-        private readonly TransportBuilder $transportBuilder,
-        private readonly Escaper $escaper,
         private readonly LoggerInterface $logger,
         private readonly UrlInterface $url,
         private readonly StoreManagerInterface $storeManager,
         private readonly Emulation $emulation,
-        private readonly Image $image,
         private readonly ItemResolverInterface $itemResolver,
         private readonly PriceCurrencyInterface $priceCurrency,
         private readonly ResourceConnection $resource,
-        private readonly ReminderLink $reminderLink
+        private readonly ReminderLink $reminderLink,
+        private readonly ReminderMail $mail
     ) {
     }
 
@@ -116,9 +113,9 @@ class SendReminders
     /**
      * Send reminder $step to the cart and record it
      *
-     * A cart with nothing left to buy (products disabled or out of stock), whose address already got its weekly
-     * reminders, or whose e-mail failed gets the step recorded without an e-mail, so it does not come back at every
-     * run and hold a place in the batch.
+     * A cart with nothing left to buy (products disabled or out of stock), or whose address already got its weekly
+     * reminders, gets the step recorded without an e-mail, so it does not come back at every run and hold a place
+     * in the batch. A cart whose e-mail fails keeps its step and comes back after the delays of RETRY_HOURS.
      *
      * @param Quote $quote
      * @param int $step
@@ -129,40 +126,50 @@ class SendReminders
         $storeId = (int) $quote->getStoreId();
         $quoteId = (int) $quote->getId();
         $secret = (string) $quote->getData('abandoned_reminder_token') ?: bin2hex(random_bytes(32));
-        $emailHash = $this->reminderLink->emailHash((string) $quote->getData('reminder_email'));
-        $token = $this->reminderLink->token($quoteId, $secret);
+        $email = (string) $quote->getData('reminder_email');
+        $emailHash = $this->reminderLink->emailHash($email);
         $link = [
             '_scope' => $storeId,
             '_secure' => true,
             '_nosid' => true,
-            '_query' => ['id' => $quoteId, 'token' => $token],
+            '_query' => ['id' => $quoteId, 'token' => $this->reminderLink->token($quoteId, $secret)],
         ];
+        $cartLink = $link;
+        if ($this->websiteValue('general/utm', (int) $quote->getStore()->getWebsiteId())) {
+            $cartLink['_query'] += $this->reminderLink->utm($step);
+        }
         $mailed = false;
+        $failed = false;
         $this->emulation->startEnvironmentEmulation($storeId, Area::AREA_FRONTEND, true);
         try {
             $items = $this->items($quote);
             if ($items && $this->sentToAddress($emailHash) < self::MAX_PER_ADDRESS) {
-                $this->send($quote, $step, $items, [
-                    'cart_url' => $this->url->getUrl('abandonedcart/reminder/restore', $link),
+                $this->mail->send($storeId, $step, $email, [
+                    'customer_name' => $this->customerName($quote),
+                    'items' => $items,
+                    'subtotal' => $this->price($quote, array_sum(array_column($items, 'amount'))),
+                    'cart_url' => $this->url->getUrl('abandonedcart/reminder/restore', $cartLink),
                     'unsubscribe_url' => $this->url->getUrl('abandonedcart/reminder/unsubscribe', $link),
                 ]);
                 $mailed = true;
             }
         } catch (Exception $e) {
+            $failed = true;
             $this->logger->error('Abandoned cart reminder failed for quote ' . $quoteId, ['exception' => $e]);
         } finally {
             $this->emulation->stopEnvironmentEmulation();
         }
+        $retry = $failed ? $this->retry((int) $quote->getData('abandoned_reminder_failures')) : [];
         $connection = $this->resource->getConnection();
         // updated_at is set to itself: MySQL would otherwise bump it and restart the delays of the next reminder.
         $connection->update(
             $this->resource->getTableName('quote'),
-            [
+            ['abandoned_reminder_token' => $secret, 'updated_at' => new Expression('updated_at')] + ($retry ?: [
                 'abandoned_reminder_count' => $sent + 1,
                 'abandoned_reminder_sent_at' => gmdate('Y-m-d H:i:s'),
-                'abandoned_reminder_token' => $secret,
-                'updated_at' => new Expression('updated_at'),
-            ],
+                'abandoned_reminder_failures' => 0,
+                'abandoned_reminder_retry_at' => null,
+            ]),
             ['entity_id = ?' => $quoteId]
         );
         if ($mailed) {
@@ -171,6 +178,26 @@ class SendReminders
                 ['quote_id' => $quoteId, 'store_id' => $storeId, 'step' => $step, 'email_hash' => $emailHash]
             );
         }
+    }
+
+    /**
+     * Columns that keep due a reminder that already failed $failures times and just failed again
+     *
+     * The reminder waits the next delay of RETRY_HOURS; once they are used up nothing is returned and the reminder
+     * is recorded as passed over.
+     *
+     * @param int $failures
+     * @return array<string,int|string>
+     */
+    public function retry(int $failures): array
+    {
+        if (!isset(self::RETRY_HOURS[$failures])) {
+            return [];
+        }
+        return [
+            'abandoned_reminder_failures' => $failures + 1,
+            'abandoned_reminder_retry_at' => gmdate('Y-m-d H:i:s', time() + self::RETRY_HOURS[$failures] * 3600),
+        ];
     }
 
     /**
@@ -191,43 +218,10 @@ class SendReminders
     }
 
     /**
-     * Send the e-mail of reminder $step
-     *
-     * @param Quote $quote
-     * @param int $step
-     * @param array<int,array<string,mixed>> $items
-     * @param array<string,string> $urls
-     */
-    private function send(Quote $quote, int $step, array $items, array $urls): void
-    {
-        $storeId = (int) $quote->getStoreId();
-        $transport = $this->transportBuilder
-            ->setTemplateIdentifier(
-                $this->config->getValue(self::CONFIG . "reminder$step/template", ScopeInterface::SCOPE_STORE, $storeId)
-            )
-            ->setTemplateOptions(['area' => Area::AREA_FRONTEND, 'store' => $storeId])
-            ->setTemplateVars($urls + [
-                'customer_name' => $this->customerName($quote),
-                'items' => $items,
-                'subtotal' => $this->price($quote, array_sum(array_column($items, 'amount'))),
-            ])
-            ->setFromByScope('sales', $storeId)
-            ->addTo((string) $quote->getData('reminder_email'))
-            ->getTransport();
-        $message = $transport->getMessage();
-        // RFC 8058 one-click unsubscribe, which Gmail and Yahoo expect from bulk senders.
-        if ($message instanceof EmailMessage) {
-            $message->getSymfonyMessage()->getHeaders()
-                ->addTextHeader('List-Unsubscribe', '<' . $urls['unsubscribe_url'] . '>')
-                ->addTextHeader('List-Unsubscribe-Post', 'List-Unsubscribe=One-Click');
-        }
-        $transport->sendMessage();
-    }
-
-    /**
      * Active carts of the website unchanged for $delay hours that got $sent reminders, the last one $gap hours ago
      *
-     * The recipient is the customer's e-mail or, for a guest, the one saved on a cart address.
+     * The recipient is the e-mail of the cart (customers, and guests of checkouts that save it there as soon as it is
+     * typed) or else the one of the cart address changed last. Oldest carts first, so a backlog is served in order.
      *
      * @param int $websiteId
      * @param int[] $storeIds
@@ -246,6 +240,7 @@ class SendReminders
                 ->from(['qa' => $quotes->getTable('quote_address')], ['email'])
                 ->where('qa.quote_id = main_table.entity_id')
                 ->where("qa.email IS NOT NULL AND qa.email <> ''")
+                ->order(['qa.updated_at DESC', 'qa.address_id DESC'])
                 ->limit(1)
         ));
         $quotes->addFieldToFilter('is_active', ['eq' => 1])
@@ -254,6 +249,12 @@ class SendReminders
             ->addFieldToFilter('abandoned_reminder_count', ['eq' => $sent])
             ->addFieldToFilter('updated_at', ['lt' => $this->hoursAgo($delay)])
             ->addFieldToFilter('updated_at', ['gt' => $this->hoursAgo(self::MAX_AGE_HOURS)])
+            ->addFieldToFilter(
+                'abandoned_reminder_retry_at',
+                [['null' => true], ['lt' => $this->hoursAgo(0)]]
+            )
+            ->setOrder('updated_at', Collection::SORT_ORDER_ASC)
+            ->setOrder('entity_id', Collection::SORT_ORDER_ASC)
             ->setPageSize(200);
         if ($sent > 0) {
             $quotes->addFieldToFilter('abandoned_reminder_sent_at', ['lt' => $this->hoursAgo($gap)]);
@@ -307,7 +308,7 @@ class SendReminders
     }
 
     /**
-     * Items still for sale, escaped because {{var}} inside {{for}} is output raw by ForDirective
+     * Items still for sale, as lines of the e-mail
      *
      * Runs under the emulation of the cart's store, for its stock, image sizes and media URL.
      *
@@ -325,15 +326,13 @@ class SendReminders
             $amount = (float) ($item->getRowTotalInclTax() ?: $item->getRowTotal());
             /** @var Product $product */
             $product = $this->itemResolver->getFinalProduct($item);
-            $items[] = [
-                'name' => $this->escaper->escapeHtml((string) $item->getName()),
-                'qty' => (float) $item->getQty(),
-                'price' => $this->escaper->escapeHtml($this->price($quote, $amount)),
-                'image_url' => $this->escaper->escapeUrl(
-                    $this->image->init($product, 'cart_page_product_thumbnail')->getUrl()
-                ),
-                'amount' => $amount,
-            ];
+            $items[] = $this->mail->item(
+                $product,
+                (string) $item->getName(),
+                (float) $item->getQty(),
+                $this->price($quote, $amount),
+                $amount
+            );
         }
         return $items;
     }

@@ -3,15 +3,17 @@ declare(strict_types=1);
 
 namespace MageOS\AbandonedCart\ViewModel;
 
+use Magento\Backend\Model\Auth\Session;
 use Magento\Directory\Model\Currency;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Pricing\PriceCurrencyInterface;
 use Magento\Framework\View\Element\Block\ArgumentInterface;
+use Magento\Store\Model\StoreManagerInterface;
 
 /**
- * Figures of the reminder report, per reminder, over the period picked in the page.
+ * Figures of the reminder report, per reminder, over the period picked in the page, and choices of its test e-mail.
  *
  * shortcut: revenue of websites with another base currency is summed as if in the default one; split the report
  * per website if a store needs it.
@@ -26,13 +28,42 @@ class Report implements ArgumentInterface
      * @param ResourceConnection $resource
      * @param PriceCurrencyInterface $priceCurrency
      * @param ScopeConfigInterface $config
+     * @param StoreManagerInterface $storeManager
+     * @param Session $authSession
      */
     public function __construct(
         private readonly RequestInterface $request,
         private readonly ResourceConnection $resource,
         private readonly PriceCurrencyInterface $priceCurrency,
-        private readonly ScopeConfigInterface $config
+        private readonly ScopeConfigInterface $config,
+        private readonly StoreManagerInterface $storeManager,
+        private readonly Session $authSession
     ) {
+    }
+
+    /**
+     * Store views a test e-mail can be sent for, by id
+     *
+     * @return array<int,string>
+     */
+    public function getStores(): array
+    {
+        $stores = [];
+        foreach ($this->storeManager->getStores() as $store) {
+            $website = $this->storeManager->getWebsite($store->getWebsiteId())->getName();
+            $stores[(int) $store->getId()] = $website . ' / ' . $store->getName();
+        }
+        return $stores;
+    }
+
+    /**
+     * E-mail of the admin user, where the test e-mail goes
+     *
+     * @return string
+     */
+    public function getAdminEmail(): string
+    {
+        return (string) $this->authSession->getUser()?->getEmail();
     }
 
     /**
