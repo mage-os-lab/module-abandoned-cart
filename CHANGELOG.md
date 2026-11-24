@@ -2,6 +2,26 @@
 
 All notable changes to this module are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+
+- *Send a Test E-mail* under *Reports > Marketing > Abandoned Cart Reminders*: sends the reminder and store view you pick to your own admin address, with sample products as the cart, also while the module is disabled.
+- *Add Campaign Parameters to the Cart Link* setting (*Stores > Configuration > Sales > Abandoned Cart > General*, off by default): adds `utm_source`, `utm_medium` and `utm_campaign` to the cart link and carries them to the cart page, so analytics tools credit the visit to the reminder.
+
+### Changed
+
+- A reminder whose sending fails is no longer lost: it is tried again one hour later, then six hours later, and passed over only after this third failure.
+- When more carts are due than one run sends, the carts left longest are served first; the order was arbitrary.
+
+### Fixed
+
+- A guest cart whose addresses hold different e-mails is always reminded at the one of the address changed last; either could be picked before.
+
+### Compatibility
+
+- Loki Checkout: guests are reminded as soon as they have typed their e-mail (read from Loki Checkout 2.8.2's source, not run). Hyvä Checkout remains unverified. See *Compatibility* in the README.
+
 ## [1.3.0] - 2026-11-23
 
 ### Security

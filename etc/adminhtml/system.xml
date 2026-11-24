@@ -26,6 +26,12 @@
                     <comment>In the base currency, before tax and discounts. Carts below it get no reminder. Empty or 0: no minimum.</comment>
                     <validate>validate-zero-or-greater</validate>
                 </field>
+                <field id="utm" translate="label comment" type="select" sortOrder="40" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>Add Campaign Parameters to the Cart Link</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Adds utm_source=abandoned_cart, utm_medium=email and utm_campaign=reminder_1, 2 or 3, so your analytics tool credits the visit to the reminder.</comment>
+                </field>
             </group>
             <group id="reminder1" translate="label" sortOrder="20" showInDefault="1" showInWebsite="1"
                    showInStore="1">

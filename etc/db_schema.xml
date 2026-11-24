@@ -8,6 +8,10 @@
                 comment="Abandoned cart reminders sent"/>
         <column xsi:type="varchar" name="abandoned_reminder_token" length="64" nullable="true"
                 comment="Secret of the abandoned cart reminder links"/>
+        <column xsi:type="smallint" name="abandoned_reminder_failures" unsigned="true" nullable="false" default="0"
+                comment="Failed sendings of the next abandoned cart reminder"/>
+        <column xsi:type="timestamp" name="abandoned_reminder_retry_at" on_update="false" nullable="true"
+                comment="Next abandoned cart reminder not tried again before"/>
     </table>
     <table name="mageos_abandoned_cart_optout" resource="default" engine="innodb"
            comment="E-mail addresses that stopped abandoned cart reminders">

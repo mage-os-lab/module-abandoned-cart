@@ -1,8 +1,8 @@
 <?php
 /**
- * Report of the reminders sent, followed and turned into orders.
+ * Report of the reminders sent, followed and turned into orders, and form that sends a reminder as a test.
  *
- * @var \Magento\Framework\View\Element\Template $block
+ * @var \Magento\Backend\Block\Template $block
  * @var \Magento\Framework\Escaper $escaper
  */
 
@@ -62,3 +62,49 @@ $rows = $report->getRows();
         )) ?>
     </p>
 <?php endif; ?>
+<form action="<?= $escaper->escapeUrl($block->getUrl('*/*/sendTest')) ?>" method="post">
+    <input type="hidden" name="form_key" value="<?= $escaper->escapeHtmlAttr($block->getFormKey()) ?>">
+    <fieldset class="admin__fieldset">
+        <legend class="admin__legend"><span><?= $escaper->escapeHtml(__('Send a Test E-mail')) ?></span></legend>
+        <div class="admin__field">
+            <label class="admin__field-label" for="abandoned-cart-test-step">
+                <span><?= $escaper->escapeHtml(__('Reminder')) ?></span>
+            </label>
+            <div class="admin__field-control">
+                <select class="admin__control-select" id="abandoned-cart-test-step" name="step">
+                    <?php foreach ([1, 2, 3] as $step): ?>
+                        <option value="<?= (int) $step ?>">
+                            <?= $escaper->escapeHtml(__('Reminder %1', $step)) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+        </div>
+        <div class="admin__field">
+            <label class="admin__field-label" for="abandoned-cart-test-store">
+                <span><?= $escaper->escapeHtml(__('Store View')) ?></span>
+            </label>
+            <div class="admin__field-control">
+                <select class="admin__control-select" id="abandoned-cart-test-store" name="store">
+                    <?php foreach ($report->getStores() as $storeId => $storeName): ?>
+                        <option value="<?= (int) $storeId ?>"><?= $escaper->escapeHtml($storeName) ?></option>
+                    <?php endforeach; ?>
+                </select>
+                <div class="admin__field-note">
+                    <?= $escaper->escapeHtml(__(
+                        'Sent to your address, %1, with the saved settings and a few products of the store view as'
+                        . ' the cart. Its links open the cart page.',
+                        $report->getAdminEmail()
+                    )) ?>
+                </div>
+            </div>
+        </div>
+        <div class="admin__field">
+            <div class="admin__field-control">
+                <button type="submit" class="action-default primary">
+                    <span><?= $escaper->escapeHtml(__('Send')) ?></span>
+                </button>
+            </div>
+        </div>
+    </fieldset>
+</form>

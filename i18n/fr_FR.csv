@@ -42,3 +42,13 @@ Reminder %1,Rappel %1
 "An order is credited to the last reminder its cart received, whether or not the link was followed. Revenue is the grand total in base currency.","Une commande est attribuée au dernier rappel reçu par son panier, que le lien ait été suivi ou non. Le chiffre d'affaires est le total TTC dans la devise de base."
 "Hello,","Bonjour,"
 "Do you want to stop the cart reminders sent to your e-mail address?","Voulez-vous ne plus recevoir de rappels de panier à votre adresse e-mail ?"
+Add Campaign Parameters to the Cart Link,Ajouter des paramètres de campagne au lien du panier
+"Adds utm_source=abandoned_cart, utm_medium=email and utm_campaign=reminder_1, 2 or 3, so your analytics tool credits the visit to the reminder.","Ajoute utm_source=abandoned_cart, utm_medium=email et utm_campaign=reminder_1, 2 ou 3, pour que votre outil d'analyse d'audience attribue la visite au rappel."
+The test e-mail needs an enabled simple product with a price in this store view.,"L'e-mail de test a besoin d'un produit simple activé, avec un prix, dans cette vue magasin."
+Send a Test E-mail,Envoyer un e-mail de test
+Store View,Vue magasin
+Send,Envoyer
+"Sent to your address, %1, with the saved settings and a few products of the store view as the cart. Its links open the cart page.","Envoyé à votre adresse, %1, avec les réglages enregistrés et quelques produits de la vue magasin en guise de panier. Ses liens ouvrent la page du panier."
+Reminder %1 was sent as a test to %2.,Le rappel %1 a été envoyé en test à %2.
+The test e-mail could not be sent.,L'e-mail de test n'a pas pu être envoyé.
+Choose a reminder and a store view.,Choisissez un rappel et une vue magasin.

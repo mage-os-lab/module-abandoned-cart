@@ -226,6 +226,60 @@ class SendRemindersTest extends TestCase
     }
 
     /**
+     * A guest cart whose checkout saved the e-mail on the cart itself, without any address, is reminded.
+     */
+    #[
+        Config('mageos_abandoned_cart/general/enabled', 1, 'website', 'base'),
+        Config('mageos_abandoned_cart/general/recipients', 'all', 'website', 'base'),
+        DataFixture(ProductFixture::class, as: 'product'),
+        DataFixture(GuestCartFixture::class, as: 'cart'),
+        DataFixture(AddProductToCartFixture::class, ['cart_id' => '$cart.id$', 'product_id' => '$product.id$']),
+    ]
+    public function testGuestWithEmailOnTheCartGetsAReminder(): void
+    {
+        $this->connection()->update(
+            $this->table('quote'),
+            ['customer_email' => 'guest@example.com'],
+            ['entity_id = ?' => $this->cartId()]
+        );
+
+        $this->assertSame(1, $this->runOnOldCart());
+        $this->assertSame(['1'], $this->loggedSteps());
+    }
+
+    /**
+     * A reminder whose sending fails stays due, waits before each new try, and is passed over after the last one.
+     */
+    #[
+        Config('mageos_abandoned_cart/general/enabled', 1, 'website', 'base'),
+        Config('mageos_abandoned_cart/general/recipients', 'all', 'website', 'base'),
+        Config('mageos_abandoned_cart/reminder1/template', 'mageos_no_such_template', 'store', 'default'),
+    ]
+    public function testFailedSendingIsTriedAgainThenPassedOver(): void
+    {
+        $this->assertSame(0, $this->runOnOldCart(), 'A failed reminder must stay due.');
+        $this->assertSame(1, (int) $this->quoteValue('abandoned_reminder_failures'));
+        $this->assertGreaterThan(gmdate('Y-m-d H:i:s'), (string) $this->quoteValue('abandoned_reminder_retry_at'));
+
+        $this->runCron();
+        $this->assertSame(1, (int) $this->quoteValue('abandoned_reminder_failures'), 'The new try must wait.');
+
+        $this->connection()->update(
+            $this->table('quote'),
+            [
+                'abandoned_reminder_failures' => count(SendReminders::RETRY_HOURS),
+                'abandoned_reminder_retry_at' => gmdate('Y-m-d H:i:s', time() - 60),
+                'updated_at' => new Expression('updated_at'),
+            ],
+            ['entity_id = ?' => $this->cartId()]
+        );
+        $this->runCron();
+        $this->assertSame(1, $this->reminderCount(), 'After the last try the reminder is passed over.');
+        $this->assertSame(0, (int) $this->quoteValue('abandoned_reminder_failures'));
+        $this->assertSame([], $this->loggedSteps());
+    }
+
+    /**
      * Age the fixture cart by two days, run the cron and return its reminder count.
      *
      * @return int

@@ -42,3 +42,13 @@ Reminder %1,Erinnerung %1
 "An order is credited to the last reminder its cart received, whether or not the link was followed. Revenue is the grand total in base currency.","Eine Bestellung wird der letzten Erinnerung ihres Warenkorbs zugerechnet, ob der Link geöffnet wurde oder nicht. Der Umsatz ist die Gesamtsumme in der Basiswährung."
 "Hello,","Hallo,"
 "Do you want to stop the cart reminders sent to your e-mail address?","Möchten Sie keine Warenkorb-Erinnerungen mehr an Ihre E-Mail-Adresse erhalten?"
+Add Campaign Parameters to the Cart Link,Kampagnenparameter an den Warenkorb-Link anhängen
+"Adds utm_source=abandoned_cart, utm_medium=email and utm_campaign=reminder_1, 2 or 3, so your analytics tool credits the visit to the reminder.","Fügt utm_source=abandoned_cart, utm_medium=email und utm_campaign=reminder_1, 2 oder 3 hinzu, damit Ihr Analysetool den Besuch der Erinnerung zuordnet."
+The test e-mail needs an enabled simple product with a price in this store view.,Die Test-E-Mail benötigt in dieser Store-View ein aktiviertes einfaches Produkt mit einem Preis.
+Send a Test E-mail,Test-E-Mail senden
+Store View,Store-View
+Send,Senden
+"Sent to your address, %1, with the saved settings and a few products of the store view as the cart. Its links open the cart page.","Wird an Ihre Adresse %1 gesendet, mit den gespeicherten Einstellungen und einigen Produkten der Store-View als Warenkorb. Die Links öffnen die Warenkorbseite."
+Reminder %1 was sent as a test to %2.,Erinnerung %1 wurde als Test an %2 gesendet.
+The test e-mail could not be sent.,Die Test-E-Mail konnte nicht gesendet werden.
+Choose a reminder and a store view.,Wählen Sie eine Erinnerung und eine Store-View.
