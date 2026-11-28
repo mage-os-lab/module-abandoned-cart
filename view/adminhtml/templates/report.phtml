@@ -56,10 +56,79 @@ $rows = $report->getRows();
         </tbody>
     </table>
     <p>
-        <?= $escaper->escapeHtml(__(
-            'An order is credited to the last reminder its cart received, whether or not the link was followed.'
-            . ' Revenue is the grand total in base currency.'
-        )) ?>
+        <?php if ($report->getAttributionDays()): ?>
+            <?= $escaper->escapeHtml(__(
+                'An order is credited to the last reminder its cart received if placed within %1 days of it, whether'
+                . ' or not the link was followed. Revenue is the grand total in base currency.',
+                $report->getAttributionDays()
+            )) ?>
+        <?php else: ?>
+            <?= $escaper->escapeHtml(__(
+                'An order is credited to the last reminder its cart received, whether or not the link was followed.'
+                . ' Revenue is the grand total in base currency.'
+            )) ?>
+        <?php endif; ?>
+    </p>
+<?php endif; ?>
+<?php
+$history = $report->getHistory();
+$page = $report->getHistoryPage();
+$stores = $report->getStores();
+?>
+<h2><?= $escaper->escapeHtml(__('History')) ?></h2>
+<?php if (!$history): ?>
+    <p><?= $escaper->escapeHtml(__('No reminder in this period.')) ?></p>
+<?php else: ?>
+    <table class="data-grid">
+        <thead>
+        <tr>
+            <th class="data-grid-th"><?= $escaper->escapeHtml(__('Date (UTC)')) ?></th>
+            <th class="data-grid-th"><?= $escaper->escapeHtml(__('Cart ID')) ?></th>
+            <th class="data-grid-th"><?= $escaper->escapeHtml(__('Store View')) ?></th>
+            <th class="data-grid-th"><?= $escaper->escapeHtml(__('Reminder')) ?></th>
+            <th class="data-grid-th"><?= $escaper->escapeHtml(__('Outcome')) ?></th>
+            <th class="data-grid-th"><?= $escaper->escapeHtml(__('Details')) ?></th>
+        </tr>
+        </thead>
+        <tbody>
+        <?php foreach (array_slice($history, 0, $report::HISTORY_PAGE_SIZE) as $row): ?>
+            <tr>
+                <td><?= $escaper->escapeHtml($row['at']) ?></td>
+                <td><?= (int) $row['quote_id'] ?></td>
+                <td><?= $escaper->escapeHtml($stores[$row['store_id']] ?? (string) $row['store_id']) ?></td>
+                <td><?= $escaper->escapeHtml(__('Reminder %1', $row['step'])) ?></td>
+                <td><?= $escaper->escapeHtml($report->outcome($row['reason'])) ?></td>
+                <td>
+                    <?php if ($row['reason'] !== null): ?>
+                        <?= $escaper->escapeHtml($report->reason($row['reason'])) ?>
+                    <?php endif; ?>
+                    <?php if ($row['coupon_code'] !== null): ?>
+                        <?= $escaper->escapeHtml(__('Coupon: %1', $row['coupon_code'])) ?>
+                    <?php endif; ?>
+                    <?php if ($row['clicked_at'] !== null): ?>
+                        <?= $escaper->escapeHtml(__('Cart link followed.')) ?>
+                    <?php endif; ?>
+                    <?php if ($row['increment_id'] !== null): ?>
+                        <?= $escaper->escapeHtml(__('Order #%1', $row['increment_id'])) ?>
+                    <?php endif; ?>
+                </td>
+            </tr>
+        <?php endforeach; ?>
+        </tbody>
+    </table>
+    <p>
+        <?php if ($page > 1): ?>
+            <?php $newer = $block->getUrl('*/*/*', ['days' => $report->getDays(), 'p' => $page - 1]) ?>
+            <a href="<?= $escaper->escapeUrl($newer) ?>">
+                <?= $escaper->escapeHtml(__('Newer')) ?>
+            </a>
+        <?php endif; ?>
+        <?php if (count($history) > $report::HISTORY_PAGE_SIZE): ?>
+            <?php $older = $block->getUrl('*/*/*', ['days' => $report->getDays(), 'p' => $page + 1]) ?>
+            <a href="<?= $escaper->escapeUrl($older) ?>">
+                <?= $escaper->escapeHtml(__('Older')) ?>
+            </a>
+        <?php endif; ?>
     </p>
 <?php endif; ?>
 <form action="<?= $escaper->escapeUrl($block->getUrl('*/*/sendTest')) ?>" method="post">

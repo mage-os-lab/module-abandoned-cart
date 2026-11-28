@@ -2,6 +2,29 @@
 
 All notable changes to this module are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+Reminders can carry a single-use coupon, the admin lists the history of every reminder with the reason when one was not sent, and the report credits only orders placed within an attribution window.
+
+Upgrade: the update adds a table and a column to `mageos_abandoned_cart_reminder`. The report now credits an order to a reminder only within 7 days of it (*Attribution Window (days)*, set it to 0 to keep the previous behaviour), and a nightly cron deletes reminders older than 365 days (*Keep History For (days)*, 0 keeps everything).
+
+### Added
+
+- *Coupon* setting per reminder (*Stores > Configuration > Sales > Abandoned Cart > Reminder 1, 2, 3*, off by default): each reminder sent gets a new code generated from the chosen cart price rule, shown in the e-mail. A rule that cannot give the cart a working code gives none, and the reminder is sent without it. A coupon never stops a reminder: any error while generating it sends the reminder without it, and a never-saved code format in *Customers > Promotions* falls back to alphanumeric.
+- *History* under *Reports > Marketing > Abandoned Cart Reminders*: every reminder of the period with its outcome, coupon code, followed link and order, and the reason when it was not sent (nothing for sale, weekly limit of the address, sending failed and retried or passed over); a reminder sent without its coupon is one line, *E-mail sent, without a coupon*, with the reason.
+- *Attribution Window (days)* setting (*Report and History*, 7 by default): an order counts as recovered by a reminder only if placed within that many days of it.
+- *Keep History For (days)* setting (*Report and History*, 365 by default): a nightly cron deletes older reminders and history; opted-out addresses are kept.
+
+### Fixed
+
+- Behind Varnish, the cart page opened from a reminder now gets its campaign parameters: Varnish strips `utm_*` from the link before Magento sees it, so they are now rebuilt from the reminder the link belongs to.
+- An error on one cart (for example in a template or an extension) no longer stops the cron run: that reminder is recorded as failed and tried again, and the other carts are served.
+
+### Changed
+
+- The reminder e-mail templates show the coupon code when there is one; custom templates need `coupon_code` added.
+- The module now requires `magento/module-sales-rule`.
+
 ## [1.4.0] - 2026-11-24
 
 A reminder whose e-mail fails is tried again instead of being lost, and reminders can be tested from the admin and tracked in analytics tools.

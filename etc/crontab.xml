@@ -5,5 +5,8 @@
         <job name="mageos_abandoned_cart_reminders" instance="MageOS\AbandonedCart\Cron\SendReminders" method="execute">
             <schedule>*/15 * * * *</schedule>
         </job>
+        <job name="mageos_abandoned_cart_purge" instance="MageOS\AbandonedCart\Cron\PurgeHistory" method="execute">
+            <schedule>40 3 * * *</schedule>
+        </job>
     </group>
 </config>

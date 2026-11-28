@@ -122,6 +122,24 @@ class ReminderLink
     }
 
     /**
+     * Number (1, 2 or 3) of the cart's last reminder, 0 when none is recorded
+     *
+     * @param int $quoteId
+     * @return int
+     */
+    public function lastStep(int $quoteId): int
+    {
+        $connection = $this->resource->getConnection();
+        return (int) $connection->fetchOne(
+            $connection->select()
+                ->from($this->resource->getTableName('mageos_abandoned_cart_reminder'), ['step'])
+                ->where('quote_id = ?', $quoteId)
+                ->order('entity_id DESC')
+                ->limit(1)
+        );
+    }
+
+    /**
      * Stop the cart reminders to an e-mail hash
      *
      * @param string $emailHash
@@ -142,19 +160,24 @@ class ReminderLink
      */
     public function recordClick(int $quoteId): void
     {
-        $this->updateLastReminder($quoteId, ['clicked_at' => gmdate('Y-m-d H:i:s')], 'clicked_at IS NULL');
+        $this->updateLastReminder($quoteId, ['clicked_at' => gmdate('Y-m-d H:i:s')], ['clicked_at IS NULL']);
     }
 
     /**
-     * Record on the cart's last reminder the order placed from the cart
+     * Record on the cart's last reminder the order placed from the cart, if within $withinDays days of it
      *
      * @param int $quoteId
      * @param int $orderId
      * @param float $baseTotal
+     * @param int $withinDays attribution window; 0 credits the order however late it comes
      */
-    public function recordOrder(int $quoteId, int $orderId, float $baseTotal): void
+    public function recordOrder(int $quoteId, int $orderId, float $baseTotal, int $withinDays = 0): void
     {
-        $this->updateLastReminder($quoteId, ['order_id' => $orderId, 'base_order_total' => $baseTotal]);
+        $this->updateLastReminder(
+            $quoteId,
+            ['order_id' => $orderId, 'base_order_total' => $baseTotal],
+            $withinDays > 0 ? ['sent_at >= ?' => gmdate('Y-m-d H:i:s', time() - $withinDays * 86400)] : []
+        );
     }
 
     /**
@@ -177,9 +200,9 @@ class ReminderLink
      *
      * @param int $quoteId
      * @param array<string,mixed> $data
-     * @param string|null $condition
+     * @param array<int|string,mixed> $conditions further conditions on that reminder, as for AdapterInterface::update
      */
-    private function updateLastReminder(int $quoteId, array $data, ?string $condition = null): void
+    private function updateLastReminder(int $quoteId, array $data, array $conditions = []): void
     {
         $connection = $this->resource->getConnection();
         $table = $this->resource->getTableName('mageos_abandoned_cart_reminder');
@@ -187,7 +210,7 @@ class ReminderLink
             $connection->select()->from($table, ['MAX(entity_id)'])->where('quote_id = ?', $quoteId)
         );
         if ($id) {
-            $connection->update($table, $data, array_filter(['entity_id = ?' => (int) $id, $condition]));
+            $connection->update($table, $data, ['entity_id = ?' => (int) $id] + $conditions);
         }
     }
 }

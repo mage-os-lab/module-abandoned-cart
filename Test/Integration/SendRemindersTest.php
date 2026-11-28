@@ -109,6 +109,7 @@ class SendRemindersTest extends TestCase
 
         $this->assertSame(1, $this->runOnOldCart());
         $this->assertSame([], $this->loggedSteps());
+        $this->assertSame([SendReminders::ISSUE_ADDRESS_LIMIT], $this->issues());
     }
 
     /**
@@ -195,6 +196,7 @@ class SendRemindersTest extends TestCase
 
         $this->assertSame(1, $this->runOnOldCart());
         $this->assertSame([], $this->loggedSteps());
+        $this->assertSame([SendReminders::ISSUE_NOTHING_FOR_SALE], $this->issues());
     }
 
     /**
@@ -305,6 +307,20 @@ class SendRemindersTest extends TestCase
         return $this->connection()->fetchCol(
             $this->connection()->select()
                 ->from($this->table('mageos_abandoned_cart_reminder'), 'step')
+                ->where('quote_id = ?', $this->cartId())
+        );
+    }
+
+    /**
+     * Reasons recorded in the history for the fixture cart.
+     *
+     * @return string[]
+     */
+    private function issues(): array
+    {
+        return $this->connection()->fetchCol(
+            $this->connection()->select()
+                ->from($this->table('mageos_abandoned_cart_issue'), 'reason')
                 ->where('quote_id = ?', $this->cartId())
         );
     }

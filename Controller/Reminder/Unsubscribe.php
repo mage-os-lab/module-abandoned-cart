@@ -25,7 +25,7 @@ use Magento\Framework\View\Result\PageFactory;
 class Unsubscribe implements HttpGetActionInterface, HttpPostActionInterface, CsrfAwareActionInterface
 {
     /**
-     * @param RequestInterface $request
+     * @param Http $request
      * @param ReminderLink $reminderLink
      * @param ManagerInterface $messages
      * @param RedirectFactory $redirectFactory
@@ -33,7 +33,7 @@ class Unsubscribe implements HttpGetActionInterface, HttpPostActionInterface, Cs
      * @param PageFactory $pageFactory
      */
     public function __construct(
-        private readonly RequestInterface $request,
+        private readonly Http $request,
         private readonly ReminderLink $reminderLink,
         private readonly ManagerInterface $messages,
         private readonly RedirectFactory $redirectFactory,
@@ -48,7 +48,7 @@ class Unsubscribe implements HttpGetActionInterface, HttpPostActionInterface, Cs
     public function execute()
     {
         $emailHash = $this->emailHash();
-        $isPost = $this->request instanceof Http && $this->request->isPost();
+        $isPost = $this->request->isPost();
         if ($isPost && $emailHash !== null) {
             $this->reminderLink->optOut($emailHash);
         }

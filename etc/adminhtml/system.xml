@@ -47,6 +47,12 @@
                     <label>E-mail Template</label>
                     <source_model>Magento\Config\Model\Config\Source\Email\Template</source_model>
                 </field>
+                <field id="coupon_rule" translate="label comment" type="select" sortOrder="30" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>Coupon</label>
+                    <source_model>MageOS\AbandonedCart\Model\Source\CouponRule</source_model>
+                    <comment>Cart price rule that generates a new coupon code for each reminder sent, shown in the e-mail. Only rules with "Use Auto Generation" are listed; the code follows their conditions and their uses per coupon and per customer.</comment>
+                </field>
             </group>
             <group id="reminder2" translate="label" sortOrder="30" showInDefault="1" showInWebsite="1"
                    showInStore="1">
@@ -62,6 +68,12 @@
                     <label>E-mail Template</label>
                     <source_model>Magento\Config\Model\Config\Source\Email\Template</source_model>
                 </field>
+                <field id="coupon_rule" translate="label comment" type="select" sortOrder="30" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>Coupon</label>
+                    <source_model>MageOS\AbandonedCart\Model\Source\CouponRule</source_model>
+                    <comment>Cart price rule that generates a new coupon code for each reminder sent, shown in the e-mail. Only rules with "Use Auto Generation" are listed; the code follows their conditions and their uses per coupon and per customer.</comment>
+                </field>
             </group>
             <group id="reminder3" translate="label" sortOrder="40" showInDefault="1" showInWebsite="1"
                    showInStore="1">
@@ -76,6 +88,28 @@
                        showInWebsite="1" showInStore="1">
                     <label>E-mail Template</label>
                     <source_model>Magento\Config\Model\Config\Source\Email\Template</source_model>
+                </field>
+                <field id="coupon_rule" translate="label comment" type="select" sortOrder="30" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>Coupon</label>
+                    <source_model>MageOS\AbandonedCart\Model\Source\CouponRule</source_model>
+                    <comment>Cart price rule that generates a new coupon code for each reminder sent, shown in the e-mail. Only rules with "Use Auto Generation" are listed; the code follows their conditions and their uses per coupon and per customer.</comment>
+                </field>
+            </group>
+            <group id="history" translate="label" sortOrder="50" showInDefault="1" showInWebsite="0"
+                   showInStore="0">
+                <label>Report and History</label>
+                <field id="attribution_days" translate="label comment" type="text" sortOrder="10" showInDefault="1"
+                       showInWebsite="0" showInStore="0">
+                    <label>Attribution Window (days)</label>
+                    <comment>An order placed from a reminded cart counts as recovered by its last reminder if placed within this many days of it. 0: however late.</comment>
+                    <validate>required-entry validate-digits</validate>
+                </field>
+                <field id="retention_days" translate="label comment" type="text" sortOrder="20" showInDefault="1"
+                       showInWebsite="0" showInStore="0">
+                    <label>Keep History For (days)</label>
+                    <comment>Reminders and their history older than this are deleted every night. 0: keep everything. Addresses that stopped the reminders are always kept.</comment>
+                    <validate>required-entry validate-digits</validate>
                 </field>
             </group>
         </section>
