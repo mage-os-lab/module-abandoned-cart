@@ -52,3 +52,35 @@ Send,Invia
 Reminder %1 was sent as a test to %2.,Il promemoria %1 è stato inviato come prova a %2.
 The test e-mail could not be sent.,Impossibile inviare l'e-mail di prova.
 Choose a reminder and a store view.,Scegli un promemoria e una vista negozio.
+No coupon,Nessun coupon
+%1 (inactive),%1 (inattiva)
+Coupon,Coupon
+"Cart price rule that generates a new coupon code for each reminder sent, shown in the e-mail. Only rules with ""Use Auto Generation"" are listed; the code follows their conditions and their uses per coupon and per customer.","Regola prezzo carrello che genera un nuovo codice coupon per ogni promemoria inviato, mostrato nell'e-mail. Sono elencate solo le regole con «Usa generazione automatica»; il codice segue le loro condizioni e i loro utilizzi per coupon e per cliente."
+Report and History,Report e cronologia
+Attribution Window (days),Finestra di attribuzione (giorni)
+An order placed from a reminded cart counts as recovered by its last reminder if placed within this many days of it. 0: however late.,Un ordine effettuato da un carrello sollecitato conta come recuperato dal suo ultimo promemoria se effettuato entro questo numero di giorni da esso. 0: qualunque sia il ritardo.
+Keep History For (days),Conserva la cronologia per (giorni)
+Reminders and their history older than this are deleted every night. 0: keep everything. Addresses that stopped the reminders are always kept.,I promemoria e la loro cronologia più vecchi vengono eliminati ogni notte. 0: conserva tutto. Gli indirizzi che hanno interrotto i promemoria vengono sempre conservati.
+Use the code %code in your cart or at checkout.,Usa il codice %code nel carrello o al checkout.
+E-mail sent,E-mail inviata
+Sending failed,Invio non riuscito
+Not sent,Non inviato
+No product of the cart is for sale any more.,Nessun prodotto del carrello è più in vendita.
+The address already got 3 reminders this week.,L'indirizzo ha già ricevuto 3 promemoria questa settimana.
+The e-mail could not be sent; it will be tried again.,Non è stato possibile inviare l'e-mail; verrà ritentato.
+"The e-mail could not be sent, for the last time; the reminder is passed over.","Non è stato possibile inviare l'e-mail, per l'ultima volta; il promemoria viene saltato."
+"E-mail sent, without a coupon","E-mail inviata, senza coupon"
+"The rule is inactive, expired, not for this website or customer group, or could not generate a code.","La regola è inattiva, scaduta, non vale per questo sito web o gruppo di clienti, oppure non ha potuto generare un codice."
+Unknown reason: %1,Motivo sconosciuto: %1
+"An order is credited to the last reminder its cart received if placed within %1 days of it, whether or not the link was followed. Revenue is the grand total in base currency.","Un ordine è attribuito all'ultimo promemoria ricevuto dal suo carrello se effettuato entro %1 giorni da esso, che il link sia stato seguito o meno. Il fatturato è il totale complessivo nella valuta di base."
+History,Cronologia
+No reminder in this period.,Nessun promemoria in questo periodo.
+Date (UTC),Data (UTC)
+Cart ID,ID carrello
+Outcome,Esito
+Details,Dettagli
+Coupon: %1,Coupon: %1
+Cart link followed.,Link del carrello seguito.
+Order #%1,Ordine n. %1
+Newer,Più recenti
+Older,Meno recenti

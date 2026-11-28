@@ -9,6 +9,7 @@
             <module name="Magento_Customer"/>
             <module name="Magento_Catalog"/>
             <module name="Magento_Reports"/>
+            <module name="Magento_SalesRule"/>
         </sequence>
     </module>
 </config>

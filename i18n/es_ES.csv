@@ -52,3 +52,35 @@ Send,Enviar
 Reminder %1 was sent as a test to %2.,El recordatorio %1 se ha enviado como prueba a %2.
 The test e-mail could not be sent.,No se ha podido enviar el correo de prueba.
 Choose a reminder and a store view.,Elige un recordatorio y una vista de tienda.
+No coupon,Sin cupón
+%1 (inactive),%1 (inactiva)
+Coupon,Cupón
+"Cart price rule that generates a new coupon code for each reminder sent, shown in the e-mail. Only rules with ""Use Auto Generation"" are listed; the code follows their conditions and their uses per coupon and per customer.","Regla de precio del carrito que genera un nuevo código de cupón para cada recordatorio enviado, mostrado en el correo electrónico. Solo se listan las reglas con «Usar generación automática»; el código sigue sus condiciones y sus usos por cupón y por cliente."
+Report and History,Informe e historial
+Attribution Window (days),Ventana de atribución (días)
+An order placed from a reminded cart counts as recovered by its last reminder if placed within this many days of it. 0: however late.,Un pedido realizado desde un carrito recordado cuenta como recuperado por su último recordatorio si se realiza en este número de días tras él. 0: sin importar el plazo.
+Keep History For (days),Conservar el historial durante (días)
+Reminders and their history older than this are deleted every night. 0: keep everything. Addresses that stopped the reminders are always kept.,Los recordatorios y su historial más antiguos se eliminan cada noche. 0: conservarlo todo. Las direcciones que detuvieron los recordatorios se conservan siempre.
+Use the code %code in your cart or at checkout.,Utilice el código %code en su carrito o al finalizar la compra.
+E-mail sent,Correo electrónico enviado
+Sending failed,Error de envío
+Not sent,No enviado
+No product of the cart is for sale any more.,Ningún producto del carrito está ya a la venta.
+The address already got 3 reminders this week.,La dirección ya recibió 3 recordatorios esta semana.
+The e-mail could not be sent; it will be tried again.,No se pudo enviar el correo electrónico; se volverá a intentar.
+"The e-mail could not be sent, for the last time; the reminder is passed over.","No se pudo enviar el correo electrónico, por última vez; se omite el recordatorio."
+"E-mail sent, without a coupon","Correo enviado, sin cupón"
+"The rule is inactive, expired, not for this website or customer group, or could not generate a code.","La regla está inactiva, caducada, no es para este sitio web o grupo de clientes, o no pudo generar un código."
+Unknown reason: %1,Motivo desconocido: %1
+"An order is credited to the last reminder its cart received if placed within %1 days of it, whether or not the link was followed. Revenue is the grand total in base currency.","Un pedido se atribuye al último recordatorio que recibió su carrito si se realiza en los %1 días siguientes, se haya seguido o no el enlace. Los ingresos son el total general en la moneda base."
+History,Historial
+No reminder in this period.,Ningún recordatorio en este periodo.
+Date (UTC),Fecha (UTC)
+Cart ID,ID del carrito
+Outcome,Resultado
+Details,Detalles
+Coupon: %1,Cupón: %1
+Cart link followed.,Enlace del carrito seguido.
+Order #%1,Pedido n.º %1
+Newer,Más recientes
+Older,Más antiguos

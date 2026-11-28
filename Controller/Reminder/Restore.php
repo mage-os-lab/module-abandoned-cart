@@ -7,11 +7,13 @@ use MageOS\AbandonedCart\Model\ReminderLink;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\App\Action\HttpGetActionInterface;
+use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Controller\Result\RedirectFactory;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Model\Quote;
+use Magento\Store\Model\ScopeInterface;
 
 /**
  * Copies the items of a guest's abandoned cart into the visitor's own cart from the link of a reminder, then opens
@@ -31,6 +33,7 @@ class Restore implements HttpGetActionInterface
      * @param CartRepositoryInterface $quoteRepository
      * @param ManagerInterface $messages
      * @param RedirectFactory $redirectFactory
+     * @param ScopeConfigInterface $config
      */
     public function __construct(
         private readonly RequestInterface $request,
@@ -39,7 +42,8 @@ class Restore implements HttpGetActionInterface
         private readonly CustomerSession $customerSession,
         private readonly CartRepositoryInterface $quoteRepository,
         private readonly ManagerInterface $messages,
-        private readonly RedirectFactory $redirectFactory
+        private readonly RedirectFactory $redirectFactory,
+        private readonly ScopeConfigInterface $config
     ) {
     }
 
@@ -54,16 +58,34 @@ class Restore implements HttpGetActionInterface
             return $this->redirectFactory->create()->setPath('checkout/cart');
         }
         $this->reminderLink->recordClick((int) $quote->getId());
+        $utm = $this->utm($quote);
         if (!$quote->getCustomerId() && !$this->customerSession->isLoggedIn()
             && (int) $this->checkoutSession->getQuoteId() !== (int) $quote->getId()
         ) {
             $this->copyIntoSessionCart($quote);
         }
         // The campaign parameters follow to the cart page: the redirect itself runs no analytics script.
-        return $this->redirectFactory->create()->setPath(
-            'checkout/cart',
-            ['_query' => $this->reminderLink->utmFrom($this->request->getParams())]
-        );
+        return $this->redirectFactory->create()->setPath('checkout/cart', ['_query' => $utm]);
+    }
+
+    /**
+     * Campaign parameters for the cart page: those of the cart's last reminder when the setting is on
+     *
+     * They are rebuilt rather than read from the link, as Varnish strips utm_* parameters before Magento sees them.
+     * Parameters the link still carries are kept for a link sent while the setting was on.
+     *
+     * @param Quote $quote
+     * @return array<string,string>
+     */
+    private function utm(Quote $quote): array
+    {
+        $utm = $this->reminderLink->utmFrom($this->request->getParams());
+        $step = $this->config->isSetFlag(
+            'mageos_abandoned_cart/general/utm',
+            ScopeInterface::SCOPE_STORE,
+            $quote->getStoreId()
+        ) ? $this->reminderLink->lastStep((int) $quote->getId()) : 0;
+        return $step ? $this->reminderLink->utm($step) + $utm : $utm;
     }
 
     /**

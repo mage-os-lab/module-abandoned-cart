@@ -28,6 +28,9 @@ class ReminderMail
     private const CONFIG = 'mageos_abandoned_cart/';
     private const SAMPLE_PRODUCTS = 3;
 
+    /** Code shown in a test e-mail whose reminder has a coupon: a test generates no real coupon. */
+    public const SAMPLE_COUPON = 'TEST-COUPON';
+
     /**
      * @param TransportBuilder $transportBuilder
      * @param ScopeConfigInterface $config
@@ -60,7 +63,7 @@ class ReminderMail
      * @param int $storeId
      * @param int $step
      * @param string $to
-     * @param array<string,mixed> $vars customer_name, items, subtotal, cart_url and unsubscribe_url
+     * @param array<string,mixed> $vars customer_name, items, subtotal, cart_url, unsubscribe_url and coupon_code
      * @param bool $oneClick false for a test, whose stop link stops nothing
      */
     public function send(int $storeId, int $step, string $to, array $vars, bool $oneClick = true): void
@@ -112,7 +115,8 @@ class ReminderMail
     /**
      * Send reminder $step of the store view to $to, with a few products of the store as the cart
      *
-     * Its links open the cart page: there is no cart to restore and nothing to stop.
+     * Its links open the cart page: there is no cart to restore and nothing to stop. A reminder with a coupon shows
+     * SAMPLE_COUPON, which no rule accepts.
      *
      * shortcut: the sample lists simple products at their catalog price, without price rules or tax; take the
      * products of a real cart if the test must match a reminder to the cent.
@@ -158,6 +162,11 @@ class ReminderMail
                 'subtotal' => $this->price((float) array_sum(array_column($items, 'amount')), $storeId),
                 'cart_url' => $cartUrl,
                 'unsubscribe_url' => $cartUrl,
+                'coupon_code' => $this->config->getValue(
+                    self::CONFIG . "reminder$step/coupon_rule",
+                    ScopeInterface::SCOPE_STORE,
+                    $storeId
+                ) ? self::SAMPLE_COUPON : '',
             ], false);
         } finally {
             $this->emulation->stopEnvironmentEmulation();

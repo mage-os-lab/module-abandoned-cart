@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace MageOS\AbandonedCart\Cron;
 
-use Exception;
+use MageOS\AbandonedCart\Model\ReminderCoupon;
 use MageOS\AbandonedCart\Model\ReminderLink;
 use MageOS\AbandonedCart\Model\ReminderMail;
 use MageOS\AbandonedCart\Model\Source\Recipients;
@@ -24,6 +24,7 @@ use Magento\Store\Model\App\Emulation;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Psr\Log\LoggerInterface;
+use Throwable;
 
 /**
  * Sends up to three reminder e-mails per abandoned cart, each with its own delay and template, website by website.
@@ -48,6 +49,13 @@ class SendReminders
     /** Hours to wait before each new try of a reminder whose sending failed; after the last one it is passed over. */
     public const RETRY_HOURS = [1, 6];
 
+    /** Reasons recorded in the history when a reminder is not sent as planned. */
+    public const ISSUE_NOTHING_FOR_SALE = 'nothing_for_sale';
+    public const ISSUE_ADDRESS_LIMIT = 'address_limit';
+    public const ISSUE_SEND_RETRY = 'send_retry';
+    public const ISSUE_SEND_GIVEN_UP = 'send_given_up';
+    public const ISSUE_NO_COUPON = 'no_coupon';
+
     /**
      * @param CollectionFactory $quoteCollection
      * @param ScopeConfigInterface $config
@@ -60,6 +68,7 @@ class SendReminders
      * @param ResourceConnection $resource
      * @param ReminderLink $reminderLink
      * @param ReminderMail $mail
+     * @param ReminderCoupon $coupon
      */
     public function __construct(
         private readonly CollectionFactory $quoteCollection,
@@ -72,7 +81,8 @@ class SendReminders
         private readonly PriceCurrencyInterface $priceCurrency,
         private readonly ResourceConnection $resource,
         private readonly ReminderLink $reminderLink,
-        private readonly ReminderMail $mail
+        private readonly ReminderMail $mail,
+        private readonly ReminderCoupon $coupon
     ) {
     }
 
@@ -102,7 +112,15 @@ class SendReminders
                     continue;
                 }
                 foreach ($this->dueQuotes($websiteId, $storeIds, $sent, $delay, $delay - $previousDelay) as $quote) {
-                    $this->remind($quote, $step, $sent);
+                    // A cart that cannot even be recorded (database error) is skipped: the others are still served.
+                    try {
+                        $this->remind($quote, $step, $sent);
+                    } catch (Throwable $e) {
+                        $this->logger->error(
+                            'Abandoned cart reminder failed for quote ' . $quote->getId(),
+                            ['exception' => $e]
+                        );
+                    }
                 }
                 $previousDelay = $delay;
                 $sent++;
@@ -111,7 +129,7 @@ class SendReminders
     }
 
     /**
-     * Send reminder $step to the cart and record it
+     * Send reminder $step to the cart and record it, or record in the history why it was not sent
      *
      * A cart with nothing left to buy (products disabled or out of stock), or whose address already got its weekly
      * reminders, gets the step recorded without an e-mail, so it does not come back at every run and hold a place
@@ -125,6 +143,7 @@ class SendReminders
     {
         $storeId = (int) $quote->getStoreId();
         $quoteId = (int) $quote->getId();
+        $websiteId = (int) $quote->getStore()->getWebsiteId();
         $secret = (string) $quote->getData('abandoned_reminder_token') ?: bin2hex(random_bytes(32));
         $email = (string) $quote->getData('reminder_email');
         $emailHash = $this->reminderLink->emailHash($email);
@@ -135,31 +154,47 @@ class SendReminders
             '_query' => ['id' => $quoteId, 'token' => $this->reminderLink->token($quoteId, $secret)],
         ];
         $cartLink = $link;
-        if ($this->websiteValue('general/utm', (int) $quote->getStore()->getWebsiteId())) {
+        if ($this->websiteValue('general/utm', $websiteId)) {
             $cartLink['_query'] += $this->reminderLink->utm($step);
         }
-        $mailed = false;
+        $issues = [];
+        $couponCode = null;
         $failed = false;
         $this->emulation->startEnvironmentEmulation($storeId, Area::AREA_FRONTEND, true);
         try {
             $items = $this->items($quote);
-            if ($items && $this->sentToAddress($emailHash) < self::MAX_PER_ADDRESS) {
+            if (!$items) {
+                $issues[] = self::ISSUE_NOTHING_FOR_SALE;
+            } elseif ($this->sentToAddress($emailHash) >= self::MAX_PER_ADDRESS) {
+                $issues[] = self::ISSUE_ADDRESS_LIMIT;
+            } else {
+                $ruleId = $this->coupon->ruleId($step, $websiteId);
+                $couponCode = $ruleId ? $this->coupon->generate($ruleId, $quote, $websiteId) : null;
+                if ($ruleId && $couponCode === null) {
+                    $issues[] = self::ISSUE_NO_COUPON;
+                }
                 $this->mail->send($storeId, $step, $email, [
                     'customer_name' => $this->customerName($quote),
                     'items' => $items,
                     'subtotal' => $this->price($quote, array_sum(array_column($items, 'amount'))),
                     'cart_url' => $this->url->getUrl('abandonedcart/reminder/restore', $cartLink),
                     'unsubscribe_url' => $this->url->getUrl('abandonedcart/reminder/unsubscribe', $link),
+                    'coupon_code' => (string) $couponCode,
                 ]);
-                $mailed = true;
             }
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             $failed = true;
             $this->logger->error('Abandoned cart reminder failed for quote ' . $quoteId, ['exception' => $e]);
+            if ($couponCode !== null) {
+                $this->coupon->cancel($couponCode);
+            }
         } finally {
             $this->emulation->stopEnvironmentEmulation();
         }
         $retry = $failed ? $this->retry((int) $quote->getData('abandoned_reminder_failures')) : [];
+        if ($failed) {
+            $issues = [$retry ? self::ISSUE_SEND_RETRY : self::ISSUE_SEND_GIVEN_UP];
+        }
         $connection = $this->resource->getConnection();
         // updated_at is set to itself: MySQL would otherwise bump it and restart the delays of the next reminder.
         $connection->update(
@@ -172,10 +207,18 @@ class SendReminders
             ]),
             ['entity_id = ?' => $quoteId]
         );
+        $row = ['quote_id' => $quoteId, 'store_id' => $storeId, 'step' => $step];
+        $mailed = !$failed && array_diff($issues, [self::ISSUE_NO_COUPON]) === [];
         if ($mailed) {
             $connection->insert(
                 $this->resource->getTableName('mageos_abandoned_cart_reminder'),
-                ['quote_id' => $quoteId, 'store_id' => $storeId, 'step' => $step, 'email_hash' => $emailHash]
+                $row + ['email_hash' => $emailHash, 'coupon_code' => $couponCode]
+            );
+        }
+        foreach ($issues as $reason) {
+            $connection->insert(
+                $this->resource->getTableName('mageos_abandoned_cart_issue'),
+                $row + ['reason' => $reason]
             );
         }
     }

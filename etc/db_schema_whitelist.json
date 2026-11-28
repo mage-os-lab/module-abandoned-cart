@@ -28,12 +28,29 @@
             "clicked_at": true,
             "order_id": true,
             "base_order_total": true,
-            "email_hash": true
+            "email_hash": true,
+            "coupon_code": true
         },
         "index": {
             "MAGEOS_ABANDONED_CART_REMINDER_QUOTE_ID": true,
             "MAGEOS_ABANDONED_CART_REMINDER_SENT_AT": true,
             "MAGEOS_ABANDONED_CART_REMINDER_EMAIL_HASH_SENT_AT": true
+        },
+        "constraint": {
+            "PRIMARY": true
+        }
+    },
+    "mageos_abandoned_cart_issue": {
+        "column": {
+            "entity_id": true,
+            "quote_id": true,
+            "store_id": true,
+            "step": true,
+            "reason": true,
+            "created_at": true
+        },
+        "index": {
+            "MAGEOS_ABANDONED_CART_ISSUE_CREATED_AT": true
         },
         "constraint": {
             "PRIMARY": true
